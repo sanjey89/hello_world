@@ -1,0 +1,57 @@
+#include <iostream>
+using namespace std;
+
+class Point{
+	short x = 0, y = 0, z = 0;
+public:
+	Point(){};
+	Point(short, short, short);
+	short GetX()const;
+	short GetY()const;
+	short GetZ()const;
+	void SetX(short);
+	void SetY(short);
+	void SetZ(short);
+	void move(short, short, short);
+	~Point(){};
+};
+
+int main(void)
+{
+	Point p;
+	cout << "x = " << p.GetX() << "; y = " << p.GetY()
+		<< "; z = " << p.GetZ();
+	cout << endl;
+	p.SetX(5);
+	p.SetY(6);
+	p.SetZ(7);
+	cout << "x = " << p.GetX() << "; y = " << p.GetY()
+		<< "; z = " << p.GetZ();
+	cout << endl;
+	p.move(0, 0, 5);
+	cout << "x = " << p.GetX() << "; y = " << p.GetY()
+		<< "; z = " << p.GetZ();
+	cout << endl;
+	Point p2(1, 2, 3);
+	cout << "x = " << p2.GetX() << "; y = " << p2.GetY()
+		<< "; z = " << p2.GetZ();
+	cout << endl;
+}
+Point::Point(short x, short y, short z)
+{
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
+short Point::GetX()const{ return x; }
+short Point::GetY()const{ return y; }
+short Point::GetZ()const{ return z; }
+void Point::SetX(short x){ this->x = x; }
+void Point::SetY(short y){ this->y = y; }
+void Point::SetZ(short z){ this->z = z; }
+void Point::move(short x, short y, short z)
+{
+	this->x += x;
+	this->y += y;
+	this->z += z;
+}
