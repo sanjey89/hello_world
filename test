@@ -17,6 +17,11 @@ class Student{
 	char * name;
 	char * surname;
 	char * lastname;
+	short *mark_zach;
+	short *mark_kurs;
+	short *mark_exam;
+	DATE *date;
+public:
 
 };
 
