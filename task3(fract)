@@ -1,0 +1,215 @@
+#include <iostream>
+using namespace std;
+
+class FRACTION{
+	int numerator = 1;
+	int denominator = 1;
+
+	int NOK(int, int);
+public:
+	FRACTION(){};
+	FRACTION(int number){ numerator = number; };
+	FRACTION(int numerator, int denominator)
+	{
+		this->numerator = numerator;
+		if (denominator == 0) this->denominator = 1;
+		else if (denominator < 0) this->denominator = -denominator;
+		this->denominator = denominator;
+	}
+
+	void SetNumerator(int);
+	void SetDenominator(int);
+
+	int GetNum()const{ return numerator; }
+	int GetDenom()const{ return denominator; }
+	double GetFractionAsDec(){ return (double)numerator / denominator; }
+	FRACTION CutFraction();
+
+	int NOD(int, int);
+
+	void ShowFraction()const;
+	void ShowAsMixFraction()const;
+	void ShowDecimal()const;
+
+	FRACTION operator+(FRACTION &other);
+	FRACTION operator-(FRACTION &other);
+	FRACTION operator*(FRACTION &other);
+	FRACTION operator/(FRACTION &other);
+};
+
+int main(void)
+{
+	setlocale(LC_ALL, "RUS");
+	//проверяем конструктор по умолчанию
+	cout << "Создаем объект без параметров f\n";
+	FRACTION f;
+	cout << "числитель f = ";
+	cout << f.GetNum();
+	cout << " знаменатель f = ";
+	cout << f.GetDenom();
+	cout << endl;
+	cout << "Создаем объект с 1 параметром f1(5)\n";
+	FRACTION f1(5);
+	cout << "числитель f1 = ";
+	cout << f1.GetNum();
+	cout << " знаменатель f1 = ";
+	cout << f1.GetDenom();
+	cout << endl;
+	f1.ShowFraction();
+	cout << endl;
+	f1.ShowAsMixFraction();
+	cout << endl;
+	cout << "Создаем объект с 2 параметрами f2(14,5)\n";
+	FRACTION f2(14,5);
+	cout << "числитель f2 = ";
+	cout << f2.GetNum();
+	cout << " знаменатель f2 = ";
+	cout << f2.GetDenom();
+	cout << endl;
+	cout << "неправильная: ";
+	f2.ShowFraction();
+	cout << endl;
+	cout << "смешанная: ";
+	f2.ShowAsMixFraction();
+	cout << endl;
+	cout << "десятичная: ";
+	f2.ShowDecimal();
+	cout << endl;
+	//работа функции возвращающей  десятичное 
+	//значение на основании числителя и знаменателя
+	double frac;
+	frac = f2.GetFractionAsDec();
+	cout << frac << endl;
+	//создадим и сократим дробь
+	cout << "Создадим дробь f3(10,5) и сократим ее:\n";
+	FRACTION f3(10, 5);
+	f3.CutFraction();
+	f3.ShowFraction();
+	cout << endl;
+	cout << "Создадим 2 дроби f4(1,2) и f5(1,4), сложим их, ";
+	cout << "а результат занесем в f6:\n";
+	FRACTION f4(1, 2);
+	FRACTION f5(1, 4);
+	FRACTION f6 = f4 + f5;
+	cout << "Дробь f6 равна: ";
+	f6.ShowFraction();
+	cout << endl;
+	cout << "Создадим дробь f7(1,2), вычтем ее от f6, ";
+	cout << "а результат занесем в f8:\n";
+	FRACTION f7(1, 2);
+	FRACTION f8 = f6 - f7;
+	cout << "Дробь f8 равна: ";
+	f8.ShowFraction();
+	cout << endl;
+	cout << "Перемножим 2 дроби f6 и f8 и запишим в f9:\n";
+	FRACTION f9 = f6*f8;
+	cout << "Дробь f9 равна: ";
+	f9.ShowFraction();
+	cout << endl;
+	cout << "Поделим 2 дроби f8 на f6, а частное запишим в f10:\n";
+	FRACTION f10 = f8/f6;
+	cout << "Дробь f10 равна: ";
+	f10.ShowFraction();
+	cout << endl;
+	f10.CutFraction();
+	cout << "Дробь f10 равна: ";
+	f10.ShowFraction();
+	cout << endl;
+	return 0;
+}
+
+void FRACTION::ShowFraction()const
+{
+	cout << numerator << "/" << denominator;
+}
+void FRACTION::ShowAsMixFraction()const
+{
+	if (numerator >= denominator)
+	{
+		cout << numerator / denominator;
+		if ((numerator % denominator) != 0)
+		{
+			cout << " " << (numerator % denominator) << "/" << denominator;
+		} 
+	}
+}
+void FRACTION::ShowDecimal()const
+{
+	cout << (float)numerator/denominator;
+}
+int FRACTION::NOD(int num1, int num2)
+{
+	int nod = 1;//значние НОД
+	int nod_max = 0;//максимальное значение НОД
+	if (num1 < num2) nod_max = num1;
+	else if (num1 > num2) nod_max = num2;
+	else return num1;
+
+	for (int i = 2; i <= nod_max; i++)
+	{
+		if ((num1%i == 0) && (num2%i == 0)) nod = i;
+	}
+	return nod;
+}
+FRACTION FRACTION::CutFraction()
+{
+	int nod = NOD(numerator, denominator);
+	numerator /= nod;
+	denominator /= nod;
+	return *this;
+}
+
+int FRACTION::NOK(int num1, int num2)
+{
+	return (num1*num2) / NOD(num1, num2);
+}
+
+void FRACTION::SetNumerator(int numerator)
+{
+	if (numerator != 0) this->numerator = numerator;
+	else this->numerator = 1;
+}
+
+void FRACTION::SetDenominator(int denominator)
+{
+	if (denominator != 0) this->denominator = denominator;
+	else this->denominator = 1;
+}
+
+FRACTION FRACTION::operator+(FRACTION &other)
+{
+	int nok = NOK(this->denominator, other.denominator);
+	int multi_frak1 = nok / this->denominator;
+	int multi_frak2 = nok / other.denominator;
+	FRACTION result;
+	result.SetDenominator(nok);
+	result.SetNumerator(this->numerator*multi_frak1 + other.numerator*multi_frak2);
+	return result;
+}
+
+FRACTION FRACTION::operator-(FRACTION &other)
+{
+	int nok = NOK(this->denominator, other.denominator);
+	int multi_frak1 = nok / this->denominator;
+	int multi_frak2 = nok / other.denominator;
+	FRACTION result;
+	result.SetDenominator(nok);
+	result.SetNumerator(this->numerator*multi_frak1 - other.numerator*multi_frak2);
+	return result;
+}
+
+FRACTION FRACTION::operator*(FRACTION &other)
+{
+	FRACTION result;
+	result.SetDenominator(this->denominator * other.denominator);
+	result.SetNumerator(this->numerator * other.numerator);
+	return result;
+}
+
+FRACTION FRACTION::operator/(FRACTION &other)
+{
+	FRACTION result;
+	result.SetDenominator(this->denominator * other.numerator);
+	result.SetNumerator(this->numerator * other.denominator);
+	return result;
+}
