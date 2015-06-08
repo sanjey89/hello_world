@@ -36,6 +36,7 @@ int main(void)
 	cout << "x = " << p2.GetX() << "; y = " << p2.GetY()
 		<< "; z = " << p2.GetZ();
 	cout << endl;
+	return 0;
 }
 Point::Point(short x, short y, short z)
 {
