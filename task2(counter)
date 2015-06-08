@@ -14,41 +14,138 @@ public:
 	Counter(int, int, int);//диапазон и значение
 	Counter(int, int, int, int);//диапазон, значение, шаг
 
+	int GetCount()const;
+	int GetMin()const;
+	int GetMax()const;
+	int GetStep()const;
+
+	void SetMin(int);
+	void SetMax(int);
+	void SetStep(int);
+	void SetCount(int);
+
 	int operator++();
 	int operator++(int);
 	int operator--();
 	int operator--(int);
+
+	void SetCountNull();
 };
 
 int main(void)
 {
-
+	setlocale(LC_ALL, "RUS");
+	cout << "Создание объекта с параметрами p(18, 0, 20, 2)\n";
+	Counter p(18, 0, 20, 2); //проверяем вызов в 4 параметрами
+	cout << "значение счетчика р = ";
+	cout << p.GetCount();
+	cout << endl;
+	cout << "минимум р = ";
+	cout << p.GetMin();
+	cout << endl;
+	cout << "максимум р = ";
+	cout << p.GetMax();
+	cout << endl;
+	cout << "шаг р = ";
+	cout << p.GetStep();
+	cout << endl;
+	cout << "Выполняем операцию инкремента p++\n";
+	p++; //проверяем перегрузку ++
+	cout << "значение счетчика р = ";
+	cout << p.GetCount();
+	cout << endl;
+	cout << "Выполняем операцию инкремента p++\n";
+	p++; //проверяем перегрузку ++
+	cout << "значение счетчика р = ";
+	cout << p.GetCount();
+	cout << endl;
+	cout << "Выполняем операцию декремента p--\n";
+	p--; //проверяем перегрузку --
+	cout << "значение счетчика р = ";
+	cout << p.GetCount();
+	cout << endl;
+	cout << "Выполняем операцию декремента p--\n";
+	p--; //проверяем перегрузку --
+	cout << "значение счетчика р = ";
+	cout << p.GetCount();
+	cout << endl;
+	cout << "Создание объекта с параметрами p2(10)\n";
+	Counter p2(10); //проверяем вызов в 1 параметром
+	cout << "значение счетчика р2 = ";
+	cout << p2.GetCount();
+	cout << endl;
+	cout << "минимум р2 = ";
+	cout << p2.GetMin();
+	cout << endl;
+	cout << "максимум р2 = ";
+	cout << p2.GetMax();
+	cout << endl;
+	cout << "шаг р2 = ";
+	cout << p2.GetStep();
+	cout << endl;
+	return 0;
 }
 
-Counter::Counter(int count){this->count = count;}
+Counter::Counter(int count){ 
+	this->count = count;
+
+	if (count >= 0) min = 0;
+	else min = count;
+
+	if (count <= 100) max = 100;
+	else max = count;
+}
 Counter::Counter(int min, int max)
 {
+	if (min > max)
+	{
+		int temp;
+		temp = min;
+		min = max;
+		max = temp;
+	}
 	this->min = min;
 	this->max = max;
+	count = min;
 }
 Counter::Counter(int count, int min, int max)
 {
+	if (min > max)
+	{
+		int temp;
+		temp = min;
+		min = max;
+		max = temp;
+	}
 	this->count = count;
 	this->min = min;
 	this->max = max;
+	step = 1;
 }
 Counter::Counter(int count, int min, int max, int step)
 {
+	if (min > max)
+	{
+		int temp;
+		temp = min;
+		min = max;
+		max = temp;
+	}
 	this->count = count;
 	this->min = min;
 	this->max = max;
 	this->step = step;
 }
+int Counter::GetCount()const{ return count; }
+int Counter::GetMin()const{ return min; }
+int Counter::GetMax()const{ return max; }
+int Counter::GetStep()const{ return step; }
+
 int Counter::operator++(){
-	if (count <= max+step) { return count += step }
+	if (count + step <= max) { return count += step; }
 	else
 	{
-		count = min;
+		count = min + (count + step) - max;
 		return count;
 	}
 }
@@ -56,13 +153,16 @@ int Counter::operator++(int x)
 {
 	int temp;
 	temp = this->count;
-	if (count != max) { count += step; }
-	else count = min;
+	if (count + step <= max) { count += step; }
+	else
+	{
+		count = min + (count + step) - max;
+	}
 
 	return temp;
 }
 int Counter::operator--(){
-	if (count <= min+step) { return count -= step }
+	if (min + step <= count) { return count -= step; }
 	else
 	{
 		count = min;
@@ -73,8 +173,27 @@ int Counter::operator--(int x)
 {
 	int temp;
 	temp = this->count;
-	if (count != max) { count += step; }
-	else count = min;
-
+	if (min + step <= count) { count -= step; }
+	else
+	{
+		count = min;
+	}
 	return temp;
 }
+void Counter::SetMin(int min)
+{
+	if (min > count) count = min;
+	this->min = min;
+}
+void Counter::SetMax(int max)
+{
+	if (max < count) count = max;
+	this->max = max;
+}
+void Counter::SetStep(int step){ this->step = step; }
+void Counter::SetCount(int count)
+{
+	if (count > max) { this->count = max; }
+	else if (count < min) { this->count = min; }
+}
+void Counter::SetCountNull(){ count = min; }
