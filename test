@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+
+class DATE{
+	int day;
+	int month;
+	int year;
+	DATE(short day, short month, short year)
+	{
+		this->day = day;
+		this->month = month;
+		this->year = year;
+	}
+};
+
+class Student{
+	char * name;
+	char * surname;
+	char * lastname;
+
+};
+
+int main(void)
+{
+
+}
