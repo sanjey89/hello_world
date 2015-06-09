@@ -1,31 +1,65 @@
 #include <iostream>
+#define _CRT_SECURE_NO_WARNINGS
 using namespace std;
 
-class DATE{
-	int day;
-	int month;
-	int year;
-	DATE(short day, short month, short year)
+class Student{
+	char *name;
+	char *surname;
+	char *lastname;
+	int day, month, year;
+	char *home_adr;
+	char *phone;
+	
+
+	void ini_Date(int day = 1, int month = 12, int year = 1900)
 	{
 		this->day = day;
 		this->month = month;
 		this->year = year;
 	}
-};
-
-class Student{
-	char * name;
-	char * surname;
-	char * lastname;
-	short *mark_zach;
-	short *mark_kurs;
-	short *mark_exam;
-	DATE *date;
+	void ini_FIO(char * name, char * surname, char * lastname)
+	{
+		int len = strlen(name);
+		this->name = new char[len + 1];
+		strcpy_s(this->name, sizeof(char)*len + 1, name);
+		len = strlen(surname);
+		this->surname = new char[len + 1];
+		strcpy_s(this->surname, sizeof(char)*len + 1, surname);
+		len = strlen(lastname);
+		this->lastname = new char[len + 1];
+		strcpy_s(this->lastname, sizeof(char)*len + 1, lastname);
+	}
 public:
+	Student(char * name, char * surname, char * lastname, int day, int month, int year, char * home_adr, char * phone)
+	{
+		ini_Date(day, month, year);
+		ini_FIO(name, surname, lastname);
+		int len = strlen(home_adr);
+		this->home_adr = new char [len + 1];
+		strcpy_s(this->home_adr, sizeof(char)*len + 1, home_adr);
+		len = strlen(phone);
+		this->phone = new char[len + 1];
+		strcpy_s(this->phone, sizeof(char)*len + 1, phone);
+		
+	}
+	char const * GetName()const{ return name; }
+	char const * GetSurName()const{ return surname; }
+	char const * GetLastName()const{ return lastname; }
+	int GetMonth()const	{ return month; }
+	int GetYear()const	{ return year; }
+	int GetDay()const	{ return day; }
+	char const * GetPhone()const{ return phone; }
+	char const * GetHome()const{ return home_adr; }
 
 };
 
-int main(void)
+void main()
 {
-
+	Student name("Vasya", "Petya", "Misha", 12, 12, 1989,"Street","0980228520");
+	cout << name.GetName();
+	cout << endl;
+	cout << name.GetSurName();
+	cout << endl;
+	cout << name.GetLastName();
+	cout << endl;
 }
