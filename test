@@ -1,109 +1,170 @@
 #include <iostream>
-#define _CRT_SECURE_NO_WARNINGS
 using namespace std;
 
-class Student{
-	char * name;
-	char * surname;
-	char * lastname;
-	int day, month, year;
-	char * home_adr;
-	char * phone;
-	int * mark_kurs;
-	int * mark_zach;
-	int * mark_exam;
+class FIO
+{
+	char *m_ps_name;
+	char *m_ps_surname;
+	char *m_ps_lastname;
 
-	void ini_Mark(int size_mark_kurs = 0, int size_mark_zach = 0, int size_mark_exam = 0)
-	{
-		mark_kurs = new int[size_mark_kurs];
-		mark_zach = new int[size_mark_zach];
-		mark_exam = new int[size_mark_exam];
-	}
-
-	void ini_Date(int day = 1, int month = 12, int year = 1900)
-	{
-		this->day = day;
-		this->month = month;
-		this->year = year;
-	}
-	void ini_FIO(char * name, char * surname, char * lastname)
-	{
-		int len = strlen(name);
-		this->name = new char[len + 1];
-		strcpy_s(this->name, sizeof(char)*len + 1, name);
-		len = strlen(surname);
-		this->surname = new char[len + 1];
-		strcpy_s(this->surname, sizeof(char)*len + 1, surname);
-		len = strlen(lastname);
-		this->lastname = new char[len + 1];
-		strcpy_s(this->lastname, sizeof(char)*len + 1, lastname);
-	}
-	~Student()
-	{
-		delete[]name;
-		delete name;
-		name = nullptr;
-		delete[] surname;
-		delete surname;
-		surname = nullptr;
-		delete[]lastname;
-		delete lastname;
-		lastname = nullptr;
-		delete[]home_adr;
-		delete home_adr;
-		home_adr = nullptr;
-		delete[]phone;
-		delete phone;
-		phone = nullptr;
-		delete[] mark_kurs;
-		delete mark_kurs;
-		mark_kurs = nullptr;
-		delete[] mark_zach;
-		delete mark_zach;
-		mark_zach = nullptr;
-		delete[] mark_exam;
-		delete mark_exam;
-		mark_exam = nullptr;
-	}
 public:
-	Student(char * name, char * surname, char * lastname, int day, int month, int year, char * home_adr, char * phone, int size_mark_kurs,
-		int size_mark_zach, int size_mark_exam)
-	{
-		ini_Date(day, month, year);
-		ini_FIO(name, surname, lastname);
-		int len = strlen(home_adr);
-		this->home_adr = new char[len + 1];
-		strcpy_s(this->home_adr, sizeof(char)*len + 1, home_adr);
-		len = strlen(phone);
-		this->phone = new char[len + 1];
-		strcpy_s(this->phone, sizeof(char)*len + 1, phone);
 
-	}
-	char const * GetName()const{ return name; }
-	char const * GetSurName()const{ return surname; }
-	char const * GetLastName()const{ return lastname; }
-	int GetMonth()const	{ return month; }
-	int GetYear()const	{ return year; }
-	int GetDay()const	{ return day; }
-	char const * GetPhone()const{ return phone; }
-	char const * GetHome()const{ return home_adr; }
+	FIO();
+	FIO(char * = "Unknown", char * = "Unknown", char * = "Unknown");
+   ~FIO();
 
-	int Get_mark_kurs(int position)const{ return mark_kurs[position]; }
-	int Get_mark_zach(int position)const{ return mark_zach[position]; }
-	int Get_mark_exam(int position)const{ return mark_exam[position]; }
+   const char *GetName()const;
+   const char *GetSurName()const;
+   const char *GetLastName()const;
 
-	void Set_mark_kurs(int mark, int position){ mark_kurs[position] = mark; }
-	void Set_mark_zach(int mark, int position){ mark_zach[position] = mark; }
-	void Set_mark_exam(int mark, int position){ mark_exam[position] = mark; }
+   void SetName(char *);
+   void SetSurName(char *);
+   void SetLastName(char *);
 };
 
-void main()
+FIO::FIO()
 {
-	Student name("Vasya", "Petya", "Misha", 12, 12, 1989, "Street", "0980228520",10,10,10);
-	cout << name.GetName();
-	cout << endl;
-	cout << name.GetSurName();
-	cout << endl;
-	cout << name.GetLastName();
-	cout << endl;
+	cout << "Создаем пустое ФИО\n";
+	char un[] = "Unknown";
+	unsigned int len_un = strlen(un) + 1;
+
+	m_ps_name = new char[len_un];
+	strcpy_s(m_ps_name, len_un, un);
+
+	m_ps_lastname = new char[len_un];
+	strcpy_s(m_ps_lastname, len_un, un);
+
+	m_ps_surname = new char[len_un];
+	strcpy_s(m_ps_surname, len_un, un);
+}
+FIO::FIO(char *name, char *surname, char *lastname)
+{
+	cout << "Создаем ФИО\n";
+	unsigned int len_name;
+	
+	len_name = strlen(name) + 1;
+	m_ps_name = new char[len_name];
+	strcpy_s(m_ps_name, len_name, name);
+
+	len_name = strlen(lastname) + 1;
+	m_ps_lastname = new char[len_name];
+	strcpy_s(m_ps_lastname, len_name, lastname);
+
+	len_name = strlen(surname) + 1;
+	m_ps_surname = new char[len_name];
+	strcpy_s(m_ps_surname, len_name, surname);
+}
+FIO::~FIO()
+{
+	cout << "Удаляем имя\n";
+	delete[]m_ps_name;
+	delete[]m_ps_surname;
+	delete[]m_ps_lastname;
+}
+void FIO::SetName(char * name)
+{
+	cout << "Меняем имя\n";
+	int lenth = strlen(name) + 1;
+	delete[]m_ps_name;
+	m_ps_name = new char[lenth];
+	strcpy_s(m_ps_name, lenth, name);
+}
+void FIO::SetSurName(char * surname)
+{
+	cout << "Меняем фамилию\n";
+	int lenth = strlen(surname) + 1;
+	delete[]m_ps_surname;
+	m_ps_surname = new char[lenth];
+	strcpy_s(m_ps_surname, lenth, surname);
+}
+void FIO::SetLastName(char * lastname)
+{
+	cout << "Меняем отчество\n";
+	int lenth = strlen(lastname) + 1;
+	delete[]m_ps_lastname;
+	m_ps_lastname = new char[lenth];
+	strcpy_s(m_ps_lastname, lenth, lastname);
+}
+const char * FIO::GetName()const{ return m_ps_name; }
+const char * FIO::GetSurName()const{ return m_ps_surname; }
+const char * FIO::GetLastName()const{ return m_ps_lastname; }
+
+class DATE{
+	unsigned int m_uDay;
+	unsigned int m_uMonth;
+	unsigned int m_uYear;
+
+	DATE();
+	DATE(unsigned, unsigned, unsigned);
+
+	void SetDay(unsigned int day) { m_uDay = day; }
+	void SetMonth(unsigned int month) { m_uMonth = month; }
+	void SetYear(unsigned int year) { m_uYear = year; }
+
+	int GetDay(){ return m_uDay; }
+	int GetMonth(){ return m_uMonth; }
+	int GetYear(){ return m_uYear; }
+};
+
+DATE::DATE(){ m_uDay = m_uMonth = m_uYear = 0; }
+DATE::DATE(unsigned day, unsigned month, unsigned year)
+{
+	m_uDay = day;
+	m_uMonth = month;
+	m_uYear = year;
+}
+
+class MARK
+{
+	unsigned * m_pu_mark;
+	unsigned size;
+public:
+	MARK(){
+		size = 1;
+		m_pu_mark = new unsigned[size]; 
+		m_pu_mark[0] = 0;
+	}
+	//n - цифра показывающая сколько оценок мы заполняем
+	MARK(unsigned size, unsigned n, unsigned mark, ...) 
+	{
+		this->size = size;
+		m_pu_mark = new unsigned[this->size];
+		unsigned *p_mark = &mark;
+
+		for (unsigned int i = 0; i < n; i++)
+		{
+			m_pu_mark[i] = *(p_mark + i);
+		}
+		//остаток заполняем 0, что значит "оценки нет"
+		for (unsigned int i = n; i < size; i++)
+		{
+			m_pu_mark[i] = 0;
+		}
+	}
+	unsigned GetMark(unsigned)const;
+	void SetMark(unsigned uMark, unsigned uPosition)
+	{
+		m_pu_mark[uPosition] = uMark;
+	}
+	~MARK(){ delete [] m_pu_mark; }
+};
+unsigned MARK::GetMark(unsigned position)const
+{
+	return m_pu_mark[position];
+}
+
+class Student
+{
+	DATE m_date;
+	FIO m_fio;
+	char * m_psHome;
+	char * m_psPhone;
+	MARK m_mark_zachet;
+	MARK m_mark_kurs;
+	MARK m_mark_exam;
+};
+
+int main(void)
+{
+
 }
