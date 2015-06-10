@@ -162,6 +162,11 @@ class Student
 	MARK m_mark_zachet;
 	MARK m_mark_kurs;
 	MARK m_mark_exam;
+public:
+	Student(FIO a_fio, DATE a_date, char* a_home, char* a_phone, MARK mark_zachet, MARK mark_kurs, MARK mark_exam)
+	{
+		
+	}
 };
 
 int main(void)
