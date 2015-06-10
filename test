@@ -3,13 +3,22 @@
 using namespace std;
 
 class Student{
-	char *name;
-	char *surname;
-	char *lastname;
+	char * name;
+	char * surname;
+	char * lastname;
 	int day, month, year;
-	char *home_adr;
-	char *phone;
-	
+	char * home_adr;
+	char * phone;
+	int * mark_kurs;
+	int * mark_zach;
+	int * mark_exam;
+
+	void ini_Mark(int size_mark_kurs = 0, int size_mark_zach = 0, int size_mark_exam = 0)
+	{
+		mark_kurs = new int[size_mark_kurs];
+		mark_zach = new int[size_mark_zach];
+		mark_exam = new int[size_mark_exam];
+	}
 
 	void ini_Date(int day = 1, int month = 12, int year = 1900)
 	{
@@ -29,18 +38,46 @@ class Student{
 		this->lastname = new char[len + 1];
 		strcpy_s(this->lastname, sizeof(char)*len + 1, lastname);
 	}
+	~Student()
+	{
+		delete[]name;
+		delete name;
+		name = nullptr;
+		delete[] surname;
+		delete surname;
+		surname = nullptr;
+		delete[]lastname;
+		delete lastname;
+		lastname = nullptr;
+		delete[]home_adr;
+		delete home_adr;
+		home_adr = nullptr;
+		delete[]phone;
+		delete phone;
+		phone = nullptr;
+		delete[] mark_kurs;
+		delete mark_kurs;
+		mark_kurs = nullptr;
+		delete[] mark_zach;
+		delete mark_zach;
+		mark_zach = nullptr;
+		delete[] mark_exam;
+		delete mark_exam;
+		mark_exam = nullptr;
+	}
 public:
-	Student(char * name, char * surname, char * lastname, int day, int month, int year, char * home_adr, char * phone)
+	Student(char * name, char * surname, char * lastname, int day, int month, int year, char * home_adr, char * phone, int size_mark_kurs,
+		int size_mark_zach, int size_mark_exam)
 	{
 		ini_Date(day, month, year);
 		ini_FIO(name, surname, lastname);
 		int len = strlen(home_adr);
-		this->home_adr = new char [len + 1];
+		this->home_adr = new char[len + 1];
 		strcpy_s(this->home_adr, sizeof(char)*len + 1, home_adr);
 		len = strlen(phone);
 		this->phone = new char[len + 1];
 		strcpy_s(this->phone, sizeof(char)*len + 1, phone);
-		
+
 	}
 	char const * GetName()const{ return name; }
 	char const * GetSurName()const{ return surname; }
@@ -51,11 +88,18 @@ public:
 	char const * GetPhone()const{ return phone; }
 	char const * GetHome()const{ return home_adr; }
 
+	int Get_mark_kurs(int position)const{ return mark_kurs[position]; }
+	int Get_mark_zach(int position)const{ return mark_zach[position]; }
+	int Get_mark_exam(int position)const{ return mark_exam[position]; }
+
+	void Set_mark_kurs(int mark, int position){ mark_kurs[position] = mark; }
+	void Set_mark_zach(int mark, int position){ mark_zach[position] = mark; }
+	void Set_mark_exam(int mark, int position){ mark_exam[position] = mark; }
 };
 
 void main()
 {
-	Student name("Vasya", "Petya", "Misha", 12, 12, 1989,"Street","0980228520");
+	Student name("Vasya", "Petya", "Misha", 12, 12, 1989, "Street", "0980228520",10,10,10);
 	cout << name.GetName();
 	cout << endl;
 	cout << name.GetSurName();
