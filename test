@@ -12,6 +12,28 @@ public:
 	FIO(char * = "Unknown", char * = "Unknown", char * = "Unknown");
    ~FIO();
 
+   FIO(const FIO& other)
+   {
+	   cout << "Копируем ФИО\n";
+	   cout << "Копируем Имя\n";
+	   delete[]m_ps_name;
+	   int Capacity = strlen(other.GetName() + 1);
+	   m_ps_name = new char[Capacity];
+	   strcpy_s(m_ps_name, Capacity, other.GetName());
+
+	   cout << "Копируем Фамилию\n";
+	   delete[]m_ps_surname;
+	   Capacity = strlen(other.GetSurName() + 1);
+	   m_ps_surname = new char[Capacity];
+	   strcpy_s(m_ps_surname, Capacity, other.GetSurName());
+
+	   cout << "Копируем Отчество\n";
+	   delete[]m_ps_lastname;
+	   Capacity = strlen(other.GetLastName() + 1);
+	   m_ps_lastname = new char[Capacity];
+	   strcpy_s(m_ps_lastname, Capacity, other.GetLastName());
+   }
+
    const char *GetName()const;
    const char *GetSurName()const;
    const char *GetLastName()const;
@@ -42,8 +64,12 @@ FIO::~FIO()
 {
 	cout << "Удаляем имя\n";
 	delete[]m_ps_name;
+	m_ps_name = nullptr;
 	delete[]m_ps_surname;
+	m_ps_surname = nullptr;
 	delete[]m_ps_lastname;
+	m_ps_lastname = nullptr;
+	cout << "Все удалено\n";
 }
 void FIO::SetName(char * name)
 {
@@ -92,76 +118,60 @@ public:
 	void SetYear(int a_year){ year = a_year; }
 };
 
-class MARK
-{
-	int * m_pu_mark;
-	int size;
-public:
-	MARK(){
-		size = 1;
-		m_pu_mark = new int[size]; 
-		m_pu_mark[0] = 0;
-	}
-	//n - цифра показывающая сколько оценок мы заполняем
-	MARK(int size, int n, int mark, ...) 
-	{
-		this->size = size;
-		m_pu_mark = new int[this->size];
-		int *p_mark = &mark;
-
-		for (int i = 0; i < n; i++)
-		{
-			m_pu_mark[i] = *(p_mark + i);
-		}
-		//остаток заполняем 0, что значит "оценки нет"
-		for (int i = n; i < size; i++)
-		{
-			m_pu_mark[i] = 0;
-		}
-	}
-	int GetMark(int)const;
-	void SetMark(int uMark, int uPosition)
-	{
-		m_pu_mark[uPosition] = uMark;
-	}
-	~MARK(){ delete [] m_pu_mark; }
-};
-int MARK::GetMark(int position)const
-{
-	return m_pu_mark[position];
-}
-
 class Student
 {
 	DATE m_date;
 	FIO m_fio;
 	char * m_psHome;
 	char * m_psPhone;
-	MARK m_mark_zachet;
-	MARK m_mark_kurs;
-	MARK m_mark_exam;
+	int * m_mark_zachet;
+	int * m_mark_kurs;
+	int * m_mark_exam;
+
+	void iniMark(int a_size_mark_z, int a_size_mark_k, int a_size_mark_e)
+	{
+		m_mark_zachet = new int[a_size_mark_z];
+		for (int i = 0; i < a_size_mark_z; i++)
+		{
+			m_mark_zachet = 0;
+		}
+		m_mark_kurs = new int[a_size_mark_k];
+		for (int i = 0; i < a_size_mark_k; i++)
+		{
+			m_mark_kurs = 0;
+		}
+		m_mark_exam = new int[a_size_mark_e];
+		for (int i = 0; i < a_size_mark_e; i++)
+		{
+			m_mark_exam = 0;
+		}
+	}
 public:
-	Student(FIO a_fio, DATE a_date, char* a_home, char* a_phone, MARK mark_zachet, MARK mark_kurs, MARK mark_exam)
+	Student(FIO a_fio, DATE a_date, char* a_home, char* a_phone, unsigned size_mark_z, unsigned size_mark_k, unsigned size_mark_e)
 	{
 		m_fio = a_fio;
 		m_date = a_date;
-		int Capacity_home = strlen(m_psHome) + 1;
+		int Capacity_home = strlen(a_home) + 1;
 		m_psHome = new char(Capacity_home);
 		strcpy_s(m_psHome, Capacity_home, a_home);
-		int Capacity_phone = strlen(m_psPhone) + 1;
+		int Capacity_phone = strlen(a_phone) + 1;
 		m_psPhone = new char(Capacity_phone);
 		strcpy_s(m_psPhone, Capacity_phone, a_phone);
-		m_mark_zachet = mark_zachet;
-		m_mark_kurs = mark_kurs;
-		m_mark_exam = mark_exam;
+		iniMark(size_mark_z, size_mark_k, size_mark_e);
 	}
+	/*Student(FIO a_fio)
+	{
+		m_fio = a_fio;
+
+	}*/
+
 	DATE GetDate()const{ return m_date; }
 	FIO GetFIO()const{ return m_fio; }
 };
 
 int main(void)
 {
-	Student Vasya({ "Vasya", "Valera", "Petya" }, { 12, 12, 1989 }, "Zabolotnogo", "0634903258", { 5, 3, 1, 2, 3 },
-	{ 6, 3, 4, 2, 3 }, { 7, 3, 5, 2, 3 });
-	cout << Vasya.GetDate().GetYear;
+	setlocale(LC_ALL, "RUS");
+	Student Vasya({ "Vasya", "Valera", "Petya" }, { 12, 12, 1989 }, "Zabolotnogo", "0634903258", 10, 10, 10);
+	//cout << Vasya.GetDate().GetYear();
 }
