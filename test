@@ -9,7 +9,6 @@ class FIO
 
 public:
 
-	FIO();
 	FIO(char * = "Unknown", char * = "Unknown", char * = "Unknown");
    ~FIO();
 
@@ -22,25 +21,10 @@ public:
    void SetLastName(char *);
 };
 
-FIO::FIO()
-{
-	cout << "Создаем пустое ФИО\n";
-	char un[] = "Unknown";
-	unsigned int len_un = strlen(un) + 1;
-
-	m_ps_name = new char[len_un];
-	strcpy_s(m_ps_name, len_un, un);
-
-	m_ps_lastname = new char[len_un];
-	strcpy_s(m_ps_lastname, len_un, un);
-
-	m_ps_surname = new char[len_un];
-	strcpy_s(m_ps_surname, len_un, un);
-}
 FIO::FIO(char *name, char *surname, char *lastname)
 {
 	cout << "Создаем ФИО\n";
-	unsigned int len_name;
+	int len_name;
 	
 	len_name = strlen(name) + 1;
 	m_ps_name = new char[len_name];
@@ -90,65 +74,59 @@ const char * FIO::GetSurName()const{ return m_ps_surname; }
 const char * FIO::GetLastName()const{ return m_ps_lastname; }
 
 class DATE{
-	unsigned int m_uDay;
-	unsigned int m_uMonth;
-	unsigned int m_uYear;
-
-	DATE();
-	DATE(unsigned, unsigned, unsigned);
-
-	void SetDay(unsigned int day) { m_uDay = day; }
-	void SetMonth(unsigned int month) { m_uMonth = month; }
-	void SetYear(unsigned int year) { m_uYear = year; }
-
-	int GetDay(){ return m_uDay; }
-	int GetMonth(){ return m_uMonth; }
-	int GetYear(){ return m_uYear; }
+	int day;
+	int month;
+	int year;
+public:
+	DATE(int day = 0, int month = 0, int year = 0)
+	{
+		this->day = day;
+		this->month = month;
+		this->year = year;
+	}
+	int GetDay(){ return day; }
+	int GetMonth(){ return month; }
+	int GetYear(){ return year; }
+	void SetDay(int a_day){ day = a_day; }
+	void SetMonth(int a_month){ month = a_month; }
+	void SetYear(int a_year){ year = a_year; }
 };
-
-DATE::DATE(){ m_uDay = m_uMonth = m_uYear = 0; }
-DATE::DATE(unsigned day, unsigned month, unsigned year)
-{
-	m_uDay = day;
-	m_uMonth = month;
-	m_uYear = year;
-}
 
 class MARK
 {
-	unsigned * m_pu_mark;
-	unsigned size;
+	int * m_pu_mark;
+	int size;
 public:
 	MARK(){
 		size = 1;
-		m_pu_mark = new unsigned[size]; 
+		m_pu_mark = new int[size]; 
 		m_pu_mark[0] = 0;
 	}
 	//n - цифра показывающая сколько оценок мы заполняем
-	MARK(unsigned size, unsigned n, unsigned mark, ...) 
+	MARK(int size, int n, int mark, ...) 
 	{
 		this->size = size;
-		m_pu_mark = new unsigned[this->size];
-		unsigned *p_mark = &mark;
+		m_pu_mark = new int[this->size];
+		int *p_mark = &mark;
 
-		for (unsigned int i = 0; i < n; i++)
+		for (int i = 0; i < n; i++)
 		{
 			m_pu_mark[i] = *(p_mark + i);
 		}
 		//остаток заполняем 0, что значит "оценки нет"
-		for (unsigned int i = n; i < size; i++)
+		for (int i = n; i < size; i++)
 		{
 			m_pu_mark[i] = 0;
 		}
 	}
-	unsigned GetMark(unsigned)const;
-	void SetMark(unsigned uMark, unsigned uPosition)
+	int GetMark(int)const;
+	void SetMark(int uMark, int uPosition)
 	{
 		m_pu_mark[uPosition] = uMark;
 	}
 	~MARK(){ delete [] m_pu_mark; }
 };
-unsigned MARK::GetMark(unsigned position)const
+int MARK::GetMark(int position)const
 {
 	return m_pu_mark[position];
 }
@@ -165,11 +143,25 @@ class Student
 public:
 	Student(FIO a_fio, DATE a_date, char* a_home, char* a_phone, MARK mark_zachet, MARK mark_kurs, MARK mark_exam)
 	{
-		
+		m_fio = a_fio;
+		m_date = a_date;
+		int Capacity_home = strlen(m_psHome) + 1;
+		m_psHome = new char(Capacity_home);
+		strcpy_s(m_psHome, Capacity_home, a_home);
+		int Capacity_phone = strlen(m_psPhone) + 1;
+		m_psPhone = new char(Capacity_phone);
+		strcpy_s(m_psPhone, Capacity_phone, a_phone);
+		m_mark_zachet = mark_zachet;
+		m_mark_kurs = mark_kurs;
+		m_mark_exam = mark_exam;
 	}
+	DATE GetDate()const{ return m_date; }
+	FIO GetFIO()const{ return m_fio; }
 };
 
 int main(void)
 {
-
+	Student Vasya({ "Vasya", "Valera", "Petya" }, { 12, 12, 1989 }, "Zabolotnogo", "0634903258", { 5, 3, 1, 2, 3 },
+	{ 6, 3, 4, 2, 3 }, { 7, 3, 5, 2, 3 });
+	cout << Vasya.GetDate().GetYear;
 }
