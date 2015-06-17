@@ -134,7 +134,6 @@ const FIO& FIO::operator=(char*n)
 
 FIO::FIO(char* n, char* s = "Unknown2", char* l = "Unknown3")
 {
-	cout << "1Go construct FIO\n";
 	int capacity = strlen(n) + 1;
 	name = new char[capacity];
 	strcpy_s(name, capacity, n);
@@ -146,14 +145,12 @@ FIO::FIO(char* n, char* s = "Unknown2", char* l = "Unknown3")
 	capacity = strlen(l) + 1;
 	l_name = new char[capacity];
 	strcpy_s(l_name, capacity, l);
-	cout << "1Close construct FIO\n";
 }
 FIO::FIO() : FIO("Unknown1", "Unknown2", "Unknown3"){};
 //FIO::FIO(char* n) : FIO(n, "Unknown", "Unknown"){};
 //FIO::FIO(char* n, char* s) : FIO(n, s, "Unknown"){};
 FIO::FIO(const FIO& oth)
 {
-	cout << "2Go CC FIO\n";
 	int capacity = strlen(oth.name) + 1;
 	name = new char[capacity];
 	strcpy_s(name, capacity, oth.name);
@@ -165,46 +162,37 @@ FIO::FIO(const FIO& oth)
 	capacity = strlen(oth.l_name) + 1;
 	l_name = new char[capacity];
 	strcpy_s(l_name, capacity, oth.l_name);
-	cout << "3Close CC FIO\n";
 }
 void FIO::SetName(const char* n)
 {
-	cout << "Go SetName FIO\n";
 	int capacity = strlen(n) + 1;
 	delete[]name;
 	name = new char[capacity];
 	strcpy_s(name, capacity, n);
-	cout << "Close SetName FIO\n";
 }
 void FIO::SetSurname(const char* s)
 {
-	cout << "Go SetSurname FIO\n";
 	int capacity = strlen(s) + 1;
 	delete[]s_name;
 	s_name = new char[capacity];
 	strcpy_s(s_name, capacity, s);
-	cout << "Close SetSurname FIO\n";
 }
 void FIO::SetLastname(const char* l)
 {
-	cout << "Go SetLastname FIO\n";
 	int capacity = strlen(l) + 1;
-	delete[]s_name;
-	s_name = new char[capacity];
-	strcpy_s(s_name, capacity, l);
-	cout << "Close SetLastname FIO\n";
+	delete[]l_name;
+	l_name = new char[capacity];
+	strcpy_s(l_name, capacity, l);
 }
 
 FIO::~FIO()
 {
-	cout << "Go destruct FIO\n";
 	delete[]name;
 	delete[]s_name;
 	delete[]l_name;
 	name = nullptr;
 	s_name = nullptr;
 	l_name = nullptr;
-	cout << "Close destruct FIO\n";
 }
 
 class DATE{
@@ -225,8 +213,8 @@ public:
 	void operator++(int);//int это просто заглушка
 	void operator--();
 	void operator--(int);
-	void operator+(int);
-	void operator-(int);
+	DATE& operator+(int);
+	DATE& operator-(int);
 
 
 	const unsigned int GetDay() const{ return m_uDay; }
@@ -239,11 +227,9 @@ public:
 };
 DATE::DATE(unsigned d, unsigned m, unsigned y)
 {
-	cout << "Go construct DATE\n";
 	m_uDay = d;
 	m_uMonth = m;
 	m_uYear = y;
-	cout << "Close construct DATE\n";
 }
 
 int DATE::operator[](unsigned key)
@@ -275,13 +261,15 @@ void DATE::operator--(int)
 {
 	m_uYear--;
 }
-void DATE::operator+(int y)
+DATE& DATE::operator+(int y)
 {
 	m_uYear += y;
+	return *this;
 }
-void DATE::operator-(int y)
+DATE& DATE::operator-(int y)
 {
-	m_uYear += y;
+	m_uYear -= y;
+	return *this;
 }
 
 class MARK{
@@ -292,8 +280,11 @@ public:
 	MARK();
 	MARK(MARK&);
 
+	void Show()const;
+
 	void SetMark(unsigned size, int count);
 	int GetMark(unsigned position)const;
+	int GetAverange()const;
 
 	int& operator[](unsigned);
 	void operator=(MARK&);
@@ -315,10 +306,20 @@ int MARK::GetMark(unsigned position)const
 	return m_mark[position];
 	else return m_mark[0];
 }
+int MARK::GetAverange()const
+{
+	int sum = 0;
+	int averange = 0;
+	for (int i = 0; i < size; i++)
+	{
+		if (!m_mark[i]) return averange = (float(sum) / (i + 1));
+		sum += m_mark[i];
+	}
+	return averange = (float(sum) / size);
+}
 //перегруженные операторы
 int& MARK::operator[](unsigned ind)
 {
-	cout << "Go[] MARK\n";
 	if (ind <= size)
 	return m_mark[ind];
 	return m_mark[size - 1];
@@ -327,15 +328,15 @@ void MARK::operator=(MARK& oth)
 {
 	size = oth.size;
 	m_mark = new int[size];
-	for (int i = 0; i < size; i++) { m_mark[i] = oth.m_mark[i]; }
+	for (unsigned i = 0; i < size; i++) { m_mark[i] = oth.m_mark[i]; }
 }
-//увеличивает size на 1
+//перегрузка инкремента, декремента
 void MARK::operator++()
 {
 	int* tmp_mark;
 	tmp_mark = new int[size + 1];
 	tmp_mark[size] = 0;
-	for (int i = 0; i < size; i++){ tmp_mark[i] = m_mark[i]; }
+	for (unsigned i = 0; i < size; i++){ tmp_mark[i] = m_mark[i]; }
 	delete[]m_mark;
 	m_mark = tmp_mark;
 	tmp_mark = nullptr;
@@ -347,10 +348,11 @@ void MARK::operator--(int)
 }
 void MARK::operator--()
 {
-	int* tmp_mark;
-	tmp_mark = new int[size];
-	tmp_mark[size] = 0;
-	for (int i = 0; i < size; i++){ tmp_mark[i] = m_mark[i]; }
+	int* tmp_mark = new int[size - 1];
+	for (int i = 0; i < size - 1; i++)
+	{
+		tmp_mark[i] = m_mark[i];
+	}
 	delete[]m_mark;
 	m_mark = tmp_mark;
 	tmp_mark = nullptr;
@@ -358,11 +360,12 @@ void MARK::operator--()
 }
 void MARK::operator++(int)
 {
-	operator--();
+	operator++();
 }
 //конструкторы, деструктор
 MARK::MARK(unsigned size)
 {
+	this->size = size;
 	m_mark = new int[size];
 	for (int i = 0; i < size; i++){ m_mark[i] = 0; }
 }
@@ -378,12 +381,21 @@ MARK::~MARK()
 	delete[] m_mark;
 	m_mark = nullptr;
 }
+//прочие методы
+void MARK::Show()const
+{
+	for (int i = 0; i < size; i++)
+	{
+		cout << m_mark[i] << " ";
+		if (i != 0 && !(i % 5)) cout << endl;
+	}
+}
 
 class Student{
 	FIO m_fio;
 	DATE m_date;
-	char* m_sHome;
-	char* m_sPhone;
+	char* m_sHome = nullptr;
+	char* m_sPhone = nullptr;
 	MARK mark_zach;
 	MARK mark_kurs;
 	MARK mark_exam;
@@ -392,7 +404,7 @@ class Student{
 	void iniHome(const char*);
 	void iniMark(MARK& mark);
 	
-public:
+	public:
 	//Student(FIO f, DATE d) :m_fio(f), m_date(d){};
 	/*Student(FIO f, DATE d, unsigned = 5, unsigned = 5,
 		unsigned = 5, char* = "Unknown",
@@ -400,8 +412,10 @@ public:
 	/*Student(DATE d);*/
 	Student();
 	Student(FIO f);
+	Student(DATE d);
+	Student(FIO f, DATE d);
+	Student(FIO f, DATE d, char*, char*);
 	//Student(const Student& oth);
-
 	const char* GetName()const{ return m_fio.GetName(); }
 	const char* GetS_name()const{ return m_fio.GetS_name(); }
 	const char* GetL_name()const{ return m_fio.GetL_name(); }
@@ -410,12 +424,24 @@ public:
 	const unsigned GetYear()const{ return m_date.GetYear(); }
 	const char* GetHome()const{ return m_sHome; }
 	const char* GetPhone()const{ return m_sPhone; }
-	const DATE GetDATE()const{ return m_date; }
-	const FIO GetFIO()const{ return m_fio; }
+	DATE& GetDATE(){ return m_date; }
+	FIO& GetFIO(){ return m_fio; }
+	MARK& GetMark(unsigned);
+
+	void SetFIO(FIO oth);
+	void SetDATE(DATE oth);
+	void SetHome(char* h);
+	void SetPhone(char* p);
+
+	Student& operator=(Student& oth);
+	void operator()(char*);
+	void operator()(char*, char*);
+	void operator()(char*, char*, char*);
 
 	void Show();
 
 };
+//конструкторы
 Student::Student()
 {
 	iniPhone("380000000000");
@@ -427,43 +453,101 @@ Student::Student(FIO f)
 	iniPhone("380000000000");
 	iniHome("UnknownHome");
 }
-
-void Student::Show()
+Student::Student(DATE d)
 {
-	cout << "\n\t" << this->GetName() << " " << this->GetS_name() << " " << this->GetL_name() << endl;
-	cout << "\t" << GetDay() << "." << GetMonth() << " " << GetYear() << endl;
-	cout << "\t" << GetPhone() << " " << GetHome() << endl;
+	m_date = d;
+	iniPhone("380000000000");
+	iniHome("UnknownHome");
 }
+Student::Student(FIO f, DATE d) :m_fio(f), m_date(d)
+{
+	iniPhone("380000000000");
+	iniHome("UnknownHome");
+}
+Student::Student(FIO f, DATE d, char* p, char* h) : m_fio(f), m_date(d)
+{
+	iniHome(h);
+	iniPhone(p);
+}
+//приватные инициализаторы
 void Student::iniHome(const char* h)
 {
-	cout << "Go iniHome Student\n";
+	if (m_sHome) delete[]m_sHome;
 	int capacity = strlen(h) + 1;
 	m_sHome = new char[capacity];
 	strcpy_s(m_sHome, capacity, h);
-	cout << "Close iniHome Student\n";
 }
 void Student::iniPhone(const char* p)
 {
-	cout << "Go iniPhone Student\n";
+	if (m_sPhone) delete[]m_sPhone;
 	int capacity = strlen(p) + 1;
 	m_sPhone = new char[capacity];
 	strcpy_s(m_sPhone, capacity, p);
-	cout << "Close iniPhone Student\n";
 }
-
-/*Student::Student(FIO f, DATE d, unsigned z, unsigned k,
-	unsigned e, char*h, char*p) :m_fio(f), m_date(d)
+//гетеры
+MARK& Student::GetMark(unsigned key)
 {
-	iniPhone(p);
-	iniHome(h);
-}*/
-/*Student::Student(DATE d) :m_date(d){
-	iniPhone("380000000000");
-	iniHome("Unknown");
-}*/
+	if (key == 1) return mark_zach;
+	else if (key == 2) return mark_kurs;
+	else return mark_exam;
+}
+//сетеры
+void Student::SetFIO(FIO oth)
+{
+	m_fio.SetName(oth.GetName());
+	oth.Show();
+	m_fio.SetSurname(oth.GetS_name());
+	m_fio.SetLastname(oth.GetL_name());
+}
+void Student::SetDATE(DATE oth)
+{
+	m_date = oth;
+}
+void Student::SetHome(char* oth)
+{
+	iniHome(oth);
+}
+void Student::SetPhone(char* oth)
+{
+	iniPhone(oth);
+}
+//перегрузка операторов
+Student& Student::operator=(Student& oth)
+{
+	m_fio = oth.m_fio;
+	m_date = oth.m_date;
+	m_sHome = nullptr;
+	iniHome(oth.m_sHome);
+	m_sPhone = nullptr;
+	iniPhone(oth.m_sPhone);
+	mark_zach = oth.mark_zach;
+	mark_exam = oth.mark_exam;
+	mark_kurs = oth.mark_kurs;
+	return *this;
+}
+void Student::operator()(char* n)
+{
+	m_fio(n);
+}
+void Student::operator()(char* n, char* s)
+{
+	m_fio(n, s);
+}
+void Student::operator()(char* n, char* s, char* l)
+{
+	m_fio(n, s, l);
+}
+//прочие
+void Student::Show()
+{
+	cout << this->GetName() << " " << this->GetS_name() << " " << this->GetL_name() << endl;
+	cout << GetDay() << "." << GetMonth() << " " << GetYear() << endl;
+	cout << GetPhone() << " " << GetHome() << endl;
+}
 
 void main()
 {
+	/*
 	//проверяем студента конструктор по умолчанию
 	Student s;
 	s.Show();
@@ -479,42 +563,32 @@ void main()
 	//проверка на самоприсваивание FIO
 	FIO f("Vasya", "Petya", "Dima");
 	f = f;
-	cout << "\t\t\t";
 	f.Show();
 	cout << endl;
 	//проверяем перегрузку (FIO&)
 	FIO f2;
 	f2(f);
-	cout << "\t\t\t";
 	f2.Show();
 	cout << endl;
-	cout << "\t\t\t"; 
 	f.Show();
 	//проверяем перегрузку ()
 	FIO f3;
 	f3("Vasya1");
-	cout << "\t\t\t";
 	f3.Show();
 	cout << endl;
 	f3("Vasya2", "Vasechkin2");
-	cout << "\t\t\t";
 	f3.Show();
 	cout << endl;
 	f3("Vasya3", "Vasechkin3", "Vas'ok");
-	cout << "\t\t\t";
 	f3.Show();
 	cout << endl;
 	//проверяем перегрузку [] FIO
-	cout << "\t\t\t";
 	cout << f3[1];
 	cout << endl;
-	cout << "\t\t\t";
 	cout << f3[2];
 	cout << endl;
-	cout << "\t\t\t";
 	cout << f3[3];
 	cout << endl;
-	cout << "\t\t\t";
 	cout << f3[4];
 	cout << endl;
 	//проверяем перегрузку = (char*)
@@ -524,7 +598,75 @@ void main()
 	//проверяем перегрузку инкремента DATE
 	DATE d(1, 1, 1990);
 	d++;
-	cout << "\t\t";
 	d.Show();
 	cout << "\n";
+	++d;
+	d.Show();
+	cout << "\n";
+	d--;
+	d.Show();
+	cout << "\n";
+	--d;
+	d.Show();
+	cout << "\n";
+	//минус DATE
+	d - 10;
+	d.Show();
+	cout << endl;
+	//проверяем класс MARK
+	MARK m;
+	cout << "\n";
+	m.Show();
+	cout << endl;
+	m[1] = 5;
+	cout << "\n";
+	m.Show();
+	cout << endl;
+	m++;
+	cout << "\n";
+	m.Show();
+	cout << endl;
+	m[0] = 3;
+	m.Show();
+	m[2] = 7;
+	m.Show();
+	cout << m.GetAverange();
+	cout << endl;*/
+	/*Student s("Vasya");
+	s.Show();
+	s.GetMark(1).Show();
+	cout << endl;
+	cout << s.GetMark(1).GetAverange();
+	s.GetMark(1)[0] = 8;
+	s.GetMark(1).Show();*/
+	Student s;
+	s.SetFIO({ "Vasya", "Vas'ok" });
+	s.SetDATE({ 12, 12 });
+	s.SetHome("Zaboltnogo");
+	s.SetPhone("0634903258");
+	cout << endl;
+	s.GetMark(2).SetMark(0, 1);
+	s.Show();
+	cout << "Mark: \n";
+	s.GetMark(1).Show();
+	cout << endl;
+	s.GetMark(2).Show();
+	cout << endl;
+	s.GetMark(3).Show();
+	cout << endl;
+	Student s2(s.GetFIO(), s.GetDATE(), "0634903232", "MyHome");
+	s2.Show();
+	Student s3(s2);
+	cout << endl;
+	s3.Show();
+	cout << endl;
+	Student s4;
+	s4 = s3;
+	s4.Show();
+	cout << endl;
+	s4("Vasya","Valera","DIMA");
+	s4.Show();
+	cout << endl;
+	s4.GetFIO()("Petya");
+	s4.Show();
 }
