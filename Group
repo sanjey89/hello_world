@@ -7,7 +7,7 @@ class FIO{
 	char* l_name;
 
 	void del();
-	
+
 public:
 	FIO(char* n, char* s, char* l);
 	FIO();
@@ -303,7 +303,7 @@ void MARK::SetMark(unsigned position, int count)
 int MARK::GetMark(unsigned position)const
 {
 	if (position <= this->size)
-	return m_mark[position];
+		return m_mark[position];
 	else return m_mark[0];
 }
 int MARK::GetAverange()const
@@ -321,7 +321,7 @@ int MARK::GetAverange()const
 int& MARK::operator[](unsigned ind)
 {
 	if (ind <= size)
-	return m_mark[ind];
+		return m_mark[ind];
 	return m_mark[size - 1];
 }
 void MARK::operator=(MARK& oth)
@@ -403,13 +403,13 @@ class Student{
 	void iniPhone(const char*);
 	void iniHome(const char*);
 	void iniMark(MARK& mark);
-	
-//	~Student();
-	public:
+
+	//	~Student();
+public:
 	//Student(FIO f, DATE d) :m_fio(f), m_date(d){};
 	/*Student(FIO f, DATE d, unsigned = 5, unsigned = 5,
-		unsigned = 5, char* = "Unknown",
-		char* = "380000000000");*/
+	unsigned = 5, char* = "Unknown",
+	char* = "380000000000");*/
 	/*Student(DATE d);*/
 	Student();
 	Student(FIO f);
@@ -438,7 +438,7 @@ class Student{
 	void operator()(char*, char*);
 	void operator()(char*, char*, char*);
 
-	void Show();
+	void Show() const;
 	~Student();
 };
 //конструкторы
@@ -465,8 +465,8 @@ Student::Student(FIO f, DATE d, char* p, char* h) : m_fio(f), m_date(d)
 }
 Student::~Student()
 {
-	delete[]m_sHome;
-	delete[]m_sPhone;
+	//delete[]m_sHome;
+	//delete[]m_sPhone;
 }
 //приватные инициализаторы
 void Student::iniHome(const char* h)
@@ -535,11 +535,18 @@ void Student::operator()(char* n, char* s, char* l)
 {
 	m_fio(n, s, l);
 }
+
+//Student::Student(const Student& oth)
+//{
+//	m_sHome = new char[200];
+//	m_sPhone = new char[200];
+//}
+
 //прочие
-void Student::Show()
+void Student::Show() const
 {
-	cout << this->GetName() << " " << this->GetS_name() << " " << this->GetL_name() << endl;
-	cout << GetDay() << "." << GetMonth() << " " << GetYear() << endl;
+	//cout << this->GetName() << " " << this->GetS_name() << " " << endl;
+	//cout << GetDay() << "." << GetMonth() << " " << GetYear() << endl;
 	cout << GetPhone() << " " << GetHome() << endl;
 }
 class Group
@@ -547,6 +554,7 @@ class Group
 	Student** ptr_p_stud;
 	unsigned size_group;
 public:
+	Group();
 	Group(unsigned);
 	Group(Group&&);
 	Group(Group&);
@@ -554,7 +562,7 @@ public:
 	~Group();
 
 	unsigned GetSize();
-	Student* GetStudent(unsigned);
+	Student& GetStudent(unsigned);
 
 	Student& operator[](unsigned);
 	Group operator+(Group& oth);
@@ -562,6 +570,14 @@ public:
 
 	void ShowFIO();
 };
+
+Group::Group()
+{
+	cout << "begin default(0)\n";
+	size_group = 0;
+	ptr_p_stud = nullptr;
+	cout << "end default(0)\n";
+}
 
 Group::Group(unsigned size)
 {
@@ -577,14 +593,11 @@ Group::Group(Group&& oth)
 	cout << "begin KP\n";
 	this->size_group = oth.size_group;
 	this->ptr_p_stud = oth.ptr_p_stud;
-	for (int i = 0; i < size_group; i++)
-	{
-		ptr_p_stud[i] = oth.ptr_p_stud[i];
-		oth.ptr_p_stud[i] = nullptr;
-	}
+	//oth.size_group = 0;
 	oth.ptr_p_stud = nullptr;
 	cout << "end KP\n";
 }
+
 Group::Group(Group& oth)
 {
 	cout << "begin KK";
@@ -599,8 +612,8 @@ Group::~Group()
 	cout << "begin del\n";
 	/*for (int i = 0; i < size_group; i++)
 	{
-		cout << i << "\n";
-		delete ptr_p_stud[i];
+	cout << i << "\n";
+	delete ptr_p_stud[i];
 	} */
 	delete[]ptr_p_stud;
 	ptr_p_stud = nullptr;
@@ -613,10 +626,10 @@ unsigned Group::GetSize()
 	return size_group;
 	cout << "end GetSize\n";
 }
-Student* Group::GetStudent(unsigned position)
+Student& Group::GetStudent(unsigned position)
 {
 	cout << "GetStudent \n";
-	return ptr_p_stud[position];
+	return *(ptr_p_stud[position]);
 }
 //перегруженные операторы
 Student& Group::operator[](unsigned position)
@@ -630,7 +643,9 @@ void Group::ShowFIO()
 	cout << "begin Show()\n";
 	for (int i = 0; i < size_group; i++)
 	{
-		GetStudent(i)->Show();
+		cout << i << "\n";
+		GetStudent(i).Show();
+		//temp.Show();
 	}
 	cout << "end Show()\n";
 }
@@ -638,21 +653,22 @@ Group Group::operator+(Group& oth)
 {
 	cout << "begin+\n";
 	unsigned size_new_g = oth.size_group + this->size_group;
-	Group temp(size_new_g);
+	Group temp;
 	temp.size_group = size_new_g;
 	temp.ptr_p_stud = new Student*[temp.size_group];
 	for (int i = 0; i < size_group; i++)
 	{
-		temp.ptr_p_stud[i] = new Student;
-		*(temp.ptr_p_stud[i]) = *(this->ptr_p_stud[i]);
-	}	
-	for (int i = size_group, j = 0; i < oth.size_group + size_group - 1; i++, j++)
-	{
-		temp.ptr_p_stud[i] = new Student;
-		*(temp.ptr_p_stud[i]) = *(oth.ptr_p_stud[j]);
+		temp.ptr_p_stud[i] = new Student(*ptr_p_stud[i]);
 	}
-		
+	for (int i = size_group, j = 0; i < oth.size_group + size_group; i++, j++)
+	{
+		temp.ptr_p_stud[i] = new Student(*(oth.ptr_p_stud[j]));
+		//cout << temp.ptr_p_stud[i] << "\n";
+	}
+
 	cout << "end+\n";
+
+	//temp.ShowFIO();
 	return temp;
 }
 Group& Group::operator=(Group& oth)
@@ -792,9 +808,25 @@ void main()
 	s4.GetFIO()("Petya");
 	s4.Show();*/
 
-	Group vnu1421(10);
+	/*Group vnu1421(10);
+	
 	Group vnu1422(10);
-	Group vnu1423 = vnu1421 + vnu1422;
-	auto x = vnu1422.GetStudent(1);
-	x->Show();
+	
+	Group perenos = vnu1421 + vnu1422;
+	perenos.ShowFIO();
+*/
+
+
+	//perenos.ShowFIO();
+	//vnu1423.ShowFIO();
+
+	//auto x = vnu1422.GetStudent(1);
+	//x->Show();*/
+
+	//Student a("Vasiliy");
+	//Student b("Mariya");
+	//a = b;
+	//a.operator=(b);
+
+
 }
