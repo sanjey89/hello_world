@@ -1,0 +1,611 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Elem
+{
+	string violation;
+	Elem* next;
+	Elem* prev;
+};
+
+class List
+{
+	Elem *Head, *Tail;
+	int length;
+public:
+	List();
+	List(const List&);
+	~List();
+	int GetLength();
+	void AddTail(string n);
+	void AddHead(string n);
+	void Insert(int pos = 0);
+	void Del(int pos = 0);
+	void DelAll();
+	void Print();
+	void Print(int pos);
+	Elem* GetElem(int);
+	List & operator = (const List & L);
+	bool SearchString(string s);
+};
+bool List::SearchString(string s)
+{
+	Elem* current = Head;
+	for (;current != 0;)
+	{
+		if (current->violation == s) return true;
+		current = current->next;
+	}
+	return false;
+}
+List::List()
+{
+	Head = Tail = NULL;
+	length = 0;
+}
+
+void List::AddHead(string n)
+{
+	Elem * temp = new Elem();
+	temp->prev = 0;
+	temp->violation = n;
+	temp->next = Head;
+
+	// если в списке уже есть элементы
+	if (Head != 0) Head->prev = temp;
+
+	// если элементов не было
+	if (length == 0) Head = Tail = temp;
+	else Head = temp;
+
+	length++;
+}
+
+void List::AddTail(string n)
+{
+	Elem * temp = new Elem();
+	temp->next = 0;
+	temp->violation = n;
+	temp->prev = Tail;
+
+	// если в списке уже есть элементы
+	if (Tail != 0) Tail->next = temp;
+
+	// если элементов не было
+	if (length == 0) Head = Tail = temp;
+	else Tail = temp;
+
+	length++;
+}
+
+// конструктор копирования
+List::List(const List & L)
+{
+	Head = Tail = NULL;
+	length = 0;
+
+	// голова списка, который копируется
+	Elem* temp = L.Head;
+
+	while (temp != 0)
+	{
+		AddTail(temp->violation);
+		temp = temp->next;
+	}
+}
+
+void List::Insert(int pos)
+{
+	if (pos == 0)
+	{
+		cout << "Input position: ";
+		cin >> pos;
+	}
+
+	if (pos < 1 || pos > length + 1)
+	{
+		cout << "Incorrect position !!!\n";
+		return;
+	}
+
+	if (pos == length + 1)
+	{
+		string data;
+		cout << "Input new data: ";
+		cin >> data;
+		AddTail(data);
+		return;
+	}
+	else if (pos == 1)
+	{
+		string data;
+		cout << "Input new data: ";
+		cin >> data;
+		AddHead(data);
+		return;
+	}
+
+	int i = 1;
+	Elem * Ins = Head;
+	while (i < pos)
+	{
+		Ins = Ins->next;
+		i++;
+	}
+
+	Elem * PrevIns = Ins->prev;
+
+	Elem * temp = new Elem();
+
+	cout << "Input new data: ";
+	cin >> temp->violation;
+
+	// настройка связей
+	if (PrevIns != 0 && length != 1)
+		PrevIns->next = temp;
+
+	temp->next = Ins;
+	temp->prev = PrevIns;
+	Ins->prev = temp;
+
+	length++;
+}
+
+void List::Del(int pos)
+{
+	if (pos == 0)
+	{
+		cout << "Input position: ";
+		cin >> pos;
+	}
+	if (pos < 1 || pos > length)
+	{
+		cout << "Incorrect position !!!\n";
+		return;
+	}
+
+	int i = 1;
+	Elem * Del = Head;
+	while (i < pos)
+	{
+		Del = Del->next;
+		i++;
+	}
+
+	Elem * PrevDel = Del->prev;
+	Elem * AfterDel = Del->next;
+
+	// если удаляется не голова
+	if (PrevDel != 0 && length != 1)
+		PrevDel->next = AfterDel;
+	// если удаляется не хвост
+	if (AfterDel != 0 && length != 1)
+		AfterDel->prev = PrevDel;
+
+	// удаление крайних элементов
+	if (pos == 1) Head = AfterDel;
+	if (pos == length) Tail = PrevDel;
+
+	delete Del;
+
+	length--;
+}
+
+void List::DelAll()
+{
+	while (length != 0) Del(1);
+}
+
+List::~List()
+{
+	DelAll();
+}
+
+void List::Print(int pos)
+{
+	if (pos < 1 || pos > length)
+	{
+		cout << "Incorrect position !!!\n";
+		return;
+	}
+
+	Elem * temp;
+
+	if (pos <= length / 2)
+	{
+		temp = Head;
+		int i = 1;
+		while (i < pos)
+		{
+			temp = temp->next;
+			i++;
+		}
+	}
+	else
+	{
+		temp = Tail;
+		int i = 1;
+		while (i <= length - pos)
+		{
+			temp = temp->prev;
+			i++;
+		}
+	}
+
+	cout << pos << " element: ";
+	cout << temp->violation << endl;
+}
+
+void List::Print()
+{
+	if (length != 0)
+	{
+		Elem * temp = Head;
+		cout << "( ";
+		while (temp->next != 0)
+		{
+			cout << temp->violation;
+			temp = temp->next;
+		}
+
+		cout << temp->violation << " )\n";
+	}
+}
+
+int List::GetLength()
+{
+	return length;
+}
+
+Elem * List::GetElem(int pos)
+{
+	Elem *temp = Head;
+
+	if (pos < 1 || pos > length)
+	{
+		cout << "Incorrect position !!!\n";
+		return 0;
+	}
+
+	int i = 1;
+	while (i < pos && temp != 0)
+	{
+		temp = temp->next;
+		i++;
+	}
+
+	if (temp == 0) return 0;
+	else return temp;
+}
+
+List & List::operator = (const List & L)
+{
+	// проверка на присвоение элемента самому себе
+	if (this == &L) return *this;
+
+	// удаление старого списка
+	this->~List(); // DelAll();
+
+	Elem* temp = L.Head;
+
+	while (temp != 0)
+	{
+		AddTail(temp->violation);
+		temp = temp->next;
+	}
+
+	return *this;
+}
+
+struct CarInfo
+{
+	string car_number;
+	List violations_list;
+};
+
+struct Node // one element of the tree
+{
+	CarInfo info; // useful data
+
+	Node* parent;
+	Node* right;
+	Node* left;
+
+	void ShowNode()
+	{
+		cout << info.car_number << " - ";
+		info.violations_list.Print();
+	}
+};
+
+class BinaryTree
+{
+	Node* root;
+	// int count;
+
+public:
+	BinaryTree()
+	{
+		root = 0;
+	}
+
+	bool IsEmpty()
+	{
+		return root == 0;
+	}
+
+	~BinaryTree()
+	{
+		Clear();
+	}
+
+private:
+	void ShowTree(Node* elem)
+	{
+		if (elem != 0)
+		{
+			ShowTree(elem->left);
+			elem->ShowNode();
+			ShowTree(elem->right);
+		}
+	}
+	void ShowIfViolation(Node* elem, string violation)
+	{
+		if (elem != 0)
+		{
+			ShowIfViolation(elem->left, violation);
+			if (elem->info.violations_list.SearchString(violation))
+				elem->ShowNode();
+			ShowIfViolation(elem->right, violation);
+				
+		}
+	}
+
+public:
+	void ShowTree()
+	{
+		cout << "\n\n";
+		ShowTree(root);
+		cout << "\n\n";
+	}
+	void ShowIfViolation(string violation)
+	{
+		cout << "\n\n";
+		ShowIfViolation(root, violation);
+		cout << "\n\n";
+	}
+
+	Node* GetRoot()
+	{
+		return root;
+	}
+
+private:
+	int GetCount(Node* elem, int count)
+	{
+		if (elem != 0)
+		{
+			count = GetCount(elem->left, count);
+			count++;
+			count = GetCount(elem->right, count);
+		}
+		return count;
+	}
+
+public:
+	int GetCount()
+	{
+		int count = 0;
+		count = GetCount(root, count);
+		return count;
+	}
+
+private:
+	void Clear(Node* elem)
+	{
+		if (elem != 0)
+		{
+			Clear(elem->left);
+			Clear(elem->right);
+			delete elem;
+			elem = 0;
+		}
+	}
+
+public:
+	void Clear()
+	{
+		if (!IsEmpty())
+		{
+			Clear(root);
+			root = 0;
+		}
+	}
+
+	Node* FindNode(CarInfo value)
+	{
+		if (IsEmpty())
+			return 0;
+		else
+		{
+			Node* f = root;
+			while (true)
+			{
+				if (value.car_number < f->info.car_number)
+				{
+					if (f->left != 0)
+						f = f->left;
+					else
+						break;
+				}
+				else if (value.car_number > f->info.car_number)
+				{
+					if (f->right != 0)
+						f = f->right;
+					else
+						break;
+				}
+				else
+					return f;
+			}
+			return 0;
+		}
+	}
+	
+	void AddNode(CarInfo value)
+	{
+		if (FindNode(value))
+			return;
+		Node* n = new Node;
+		n->right = n->left = 0;
+		n->info = value;
+		Node* parent = 0;
+		if (IsEmpty())
+		{
+			root = n;
+			root->parent = parent;
+		}
+		else
+		{
+			Node*p = root;
+			while (p != 0)
+			{
+				parent = p;
+				if (n->info.car_number>p->info.car_number)
+					p = p->right;
+				else
+					p = p->left;
+			}
+			if (n->info.car_number<parent->info.car_number)
+				parent->left = n;
+			else
+				parent->right = n;
+			n->parent = parent;
+		}
+	}
+
+	BinaryTree& operator = (const BinaryTree& obj)
+	{
+		if (!IsEmpty())
+			Clear();
+		AddNode(obj.root->info);
+		Copy(obj.root);
+		return *this;
+	}
+
+	BinaryTree(const BinaryTree& obj)
+	{
+		root = 0;
+		AddNode(obj.root->info);
+		Copy(obj.root);
+	}
+
+	void Copy(Node* elem)
+	{
+		if (elem->left != 0)
+			AddNode(elem->left->info);
+		if (elem->right != 0)
+			AddNode(elem->right->info);
+		if (elem->left != 0)
+			Copy(elem->left);
+		if (elem->right != 0)
+			Copy(elem->right);
+	}
+
+	void DeleteNode(CarInfo value)
+	{
+		Node* d = FindNode(value);
+		if (d == 0)
+			return;
+		Node* parent = d->parent;
+		if (d == root && GetCount() == 1)
+		{
+			Clear();
+			return;
+		}
+		if (d->left == 0 && d->right == 0)
+		{
+			if (parent->left == d)
+				parent->left = 0;
+			else
+				parent->right = 0;
+			delete d;
+			return;
+		}
+		if (d->left == 0 && d->right != 0)
+		{
+			if (parent->left == d)
+			{
+				parent->left = d->right;
+			}
+			else
+			{
+				parent->right = d->right;
+
+			}
+			d->right->parent = parent;
+			delete d;
+			return;
+		}
+		if (d->left != 0 && d->right == 0)
+		{
+			if (parent->left == d)
+			{
+				parent->left = d->left;
+			}
+			else
+			{
+				parent->right = d->left;
+
+			}
+			d->left->parent = parent;
+			delete d;
+			return;
+		}
+		if (d->left != 0 && d->right != 0)
+		{
+			Node*r = d->right;
+			if (r->right == 0 && r->left == 0)
+			{
+				d->info = r->info;
+				d->right = 0;
+				delete r;
+			}
+			else if (r->left != 0)
+			{
+				Node*p = r->left;
+				while (p->left != 0)
+					p = p->left;
+				d->info = p->info;
+				if (p->right == 0)
+					p->parent->left = 0;
+				else
+					p->parent->left = p->right;
+				delete p;
+			}
+			else
+			{
+				d->info = r->info;
+				d->right = r->right;
+				delete r;
+			}
+		}
+	}
+};
+
+void main()
+{
+	BinaryTree bt;
+	CarInfo ci;
+	ci.car_number = "222-333-BH";
+	ci.violations_list.AddTail("proezd na krasnij");
+	bt.AddNode(ci);
+	CarInfo ci2;
+	ci2.car_number = "222-333-BH2";
+	ci2.violations_list.AddTail("net aptechki");
+	bt.AddNode(ci2);
+	bt.ShowTree();
+	//показать по правонарушению
+	bt.ShowIfViolation("net aptechki");
+}
