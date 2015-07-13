@@ -1,0 +1,88 @@
+/*1. Создайте класс Student, который будет содержать информацию о студенте.
+С помощью механизма наследования, реализуйте класс Aspirant (аспирант - это студент,
+который готовится к защите кандидатской работы), производный от Student. */
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Student
+{
+protected:
+	string name;
+	string surname;
+	unsigned age;
+public:
+	//конструкторы
+	Student(){ name = "Unknown"; surname = "Unknown"; age = 0; }
+	Student(string n, string sn = "Unknown", unsigned a = 0)
+	{ name = n, surname = sn, age = a; }
+	//геттеры, сеттеры
+	const string GetName() const{ return name; };
+	const string GetSurname() const{ return surname; }
+	const unsigned GetAge() const{ return age; }
+	void SetName(string n){ name = n; }
+	void SetSurname(string sn){ surname = sn; }
+	void SetAge(unsigned a){ age = a; }
+	//Прочие
+	void Print(){cout << name << " " << surname << " " << age;}
+};
+
+class Aspirant :public Student
+{
+protected:
+	bool Ready = false;
+	string dissertation = "Unknown";
+public:
+	//конструкторы
+	Aspirant(){};
+	Aspirant(string n, string sn = "Unknown", unsigned a = 0, string d = "Unknown") 
+		:Student(n, sn, a)
+	{
+		dissertation = d;
+	}
+	//геттеры сеттеры
+	bool GetReady(){ return true; }
+	bool SetReady(bool b){ Ready = b; }
+	//прочие ф-ции
+	void Print()
+	{
+		Student::Print();
+		cout << endl;
+		cout << dissertation;
+		cout << endl;
+		if (Ready) cout << "I'm ready!";
+	}
+};
+
+void main()
+{
+	Student Vasya("Vasya", "Anton", 28);
+	Vasya.Print();
+	cout << endl;
+	Student Petya("Petya", "Pupkin");
+	Petya.Print();
+	cout << endl;
+	Student Oleg;
+	Oleg.Print();
+	cout << endl;
+
+	Aspirant Nikita;
+	Nikita.Print();
+	cout << endl;
+
+	Aspirant Gena("Gena");
+	Gena.Print();
+	cout << endl;
+
+	Aspirant Vova("Vova", "Vovan");
+	Vova.Print();
+	cout << endl;
+
+	Aspirant Vova2("Vova2", "Vovan2", 30);
+	Vova2.Print();
+	cout << endl;
+
+	Aspirant Vova3("Vova3", "Vovan3", 30, "Math");
+	Vova3.Print();
+	cout << endl;
+}
