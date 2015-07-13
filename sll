@@ -1,0 +1,402 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+typedef int T;
+
+class SingleLinkedList
+{
+public:
+	struct Element
+	{
+		T data;
+		Element* next;
+	};
+
+private:
+	Element* head; // начало
+	Element* tail; // конец
+	int count;     // необязательное поле
+void quickSort(int arr[], int left, int right) {
+		int i = left, j = right;
+		int tmp;
+		int pivot = arr[(left + right) / 2];
+
+		/* partition */
+		while (i <= j) {
+			while (arr[i] < pivot)
+				i++;
+			while (arr[j] > pivot)
+				j--;
+			if (i <= j) {
+				tmp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = tmp;
+				i++;
+				j--;
+			}
+		};
+
+		/* recursion */
+		if (left < j)
+			quickSort(arr, left, j);
+		if (i < right)
+			quickSort(arr, i, right);
+
+	}
+public:
+	SingleLinkedList()
+	{
+		head = tail = nullptr;
+		count = 0;
+	}
+	SingleLinkedList(SingleLinkedList& other)
+	{
+		operator=(other);
+	}
+	void operator=(SingleLinkedList& other)
+	{
+		if (head != nullptr) Clear();
+		count = 0;
+		head = tail = nullptr;
+		Element* current = other.head;
+		for (int i = 0; i < other.count; i++)
+		{
+			Add(current->data);
+			current = current->next;
+		}
+	}
+	int IndexOf(int value)
+	{
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (value == current->data) return i;
+			current = current->next;
+		}
+		return -1;
+	}
+	int LastIndexOf(int value)
+	{
+		Element* current = head;
+		int k = -1;
+		for (int i = 0; i < count; i++)
+		{
+			if (value == current->data)
+				k = i;
+			current = current->next;
+		}
+		return k;
+	}
+	void Insert(int value, int pos)
+	{
+		if (head == nullptr) 
+			Add(value);
+		else {
+			count++;
+			Element* temp = new Element;
+			temp->data = value;
+			temp->next = GetElementAt(pos); 
+			if (pos != 0)
+				GetElementAt(pos - 1)->next = temp;
+			else 
+				head = temp;
+		}
+	}
+	void Reverse() {
+		SingleLinkedList temp;
+		for (int i = 0; i < count;i++)
+		temp.Add(GetElementAt(count - i - 1)->data);
+		*this = temp;
+	}
+	void Sort() {
+		int * mas = this->ToArray();
+		quickSort(mas, 0, this->count-1);
+		SingleLinkedList temp;
+		for (int i = 0; i < count; i++)
+			temp.Add(mas[i]);
+		*this = temp;
+	}
+
+	int* ToArray() {
+		int* mas = new int[count];
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			mas[i] = current->data;
+			current = current->next;
+		}
+		return mas;
+	}
+	void Remove(int number)
+	{
+		int i = IndexOf(number);
+		if (i == 0) 
+			RemoveHead();
+		else if (i == -1) 
+			return;
+		else
+		{
+			Element* delete_el;
+			delete_el = GetElementAt(i);
+			count--;
+			GetElementAt(i - 1)->next = GetElementAt(i)->next;
+			delete delete_el;
+		}
+	}
+	void RemoveAll(int number) 
+	{
+		for (;;)
+		{
+			if (!Contains(number))
+				return;
+			Remove(number);	
+		}
+	}
+	void InsertRange(int mass[], int size, int pos)
+	{
+		for (int i = 0; i < size; i++)
+			Insert(mass[i], pos+i);
+	}
+	bool operator==(const SingleLinkedList& other)
+	{
+		if (count != other.count) return false;
+		Element* current_other = other.head;
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (current->data != current_other->data)
+				return false;
+			current = current->next;
+			current_other = current_other->next;
+		}
+		return true;
+	}
+	void operator<<(int value)
+	{
+		int k = 0;
+		Element* temp = head;
+		while (k != value)
+		{	
+			if (temp == nullptr) break;
+			cout << temp->data << " ";
+			temp = temp->next;
+			k++;
+		}
+	}
+	Element& operator[](int pos) 
+	{
+		Element* current = head;
+		for (int i = 0; i < pos; i++)
+		{
+			if (current == nullptr) break;
+			current = current->next;
+		}
+		if (current == nullptr)
+			return *head;
+		else
+			return *current;
+	}
+	Element* GetElementAt(int index) 
+	{
+		Element* temp = &(*this)[index];
+
+		return temp;
+	}
+	void RemoveAt(int index) {
+		if (index == 0) RemoveHead();
+		else {
+			Element* temp = GetElementAt(index); // 6 7 
+				if (index == count - 1) 
+					RemoveTail(); 
+				else {
+						GetElementAt(index - 1)->next = GetElementAt(index + 1);
+						delete temp;
+						count--;
+				}
+		}
+		
+	}
+	void RemoveTail()
+	{
+		count--;
+		delete tail;
+		tail = GetElementAt(count - 1); 
+		tail->next = nullptr;
+	}
+	// добавляет число в конец списка (метод входит в стандартный интерфейс)
+	void Add(T data)
+	{
+		Element* temp = new Element();
+		temp->data = data;
+		temp->next = nullptr;
+		if (head == nullptr)
+		{
+			head = tail = temp;
+		}
+		else
+		{
+			tail->next = temp;
+			tail = temp;
+		}
+		count++;
+	}
+	bool Equals(const SingleLinkedList& other)
+	{
+		return operator==(other);
+	}
+	bool Contains(T value)
+	{
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (value == current->data)
+				return true;
+			current = current->next;
+		}
+		return false;
+	}
+	void AddRange(T mas[],int size)
+	{
+		for (int i = 0; i < size; i++)
+			Add(mas[i]);
+	}
+
+	// (метод не входит в стандартный интерфейс)
+	void RemoveHead()
+	{
+		Element* temp = head;
+		head = head->next;
+		delete temp;
+		count--;
+	}
+
+	// удаляет все элементы списка (метод входит в стандартный интерфейс)
+	void Clear()
+	{
+		while (head != nullptr)
+			RemoveHead();
+	}
+
+	// обязательный метод в С++
+	~SingleLinkedList()
+	{
+		Clear();
+	}
+
+	// (метод не входит в стандартный интерфейс)
+	void Print() const
+	{
+		Element* temp = head;
+		while (temp != nullptr)
+		{
+			cout << temp->data << " ";
+			temp = temp->next;
+		}
+		cout << "\n\n";
+	}
+
+	// (метод не входит в стандартный интерфейс)
+	int GetCount() const
+	{
+		return count;
+	}
+
+	// тестовый метод, демонстирующий возможность работы со структурой Element за пределами класса
+	Element GetHead()
+	{
+		if (head != nullptr) return *head;
+		else throw "Oops!";
+	}
+};
+
+void main()
+{
+	srand(time(0));
+	rand();
+
+	SingleLinkedList l;
+
+	for (int i = 0; i < 15; i++)
+		l.Add(rand() % 90 + 10);
+
+	l.Add(78);
+
+	l.Print();
+
+	for (int i = 0; i < 2; i++)
+		l.RemoveHead();
+
+	l.Print();
+
+	cout << "count of list elements: " << l.GetCount() << "\n\n";
+
+	SingleLinkedList::Element e = l.GetHead();
+	cout << "head value: " << e.data << "\n\n";
+	//проверяем Contains 
+	cout << boolalpha << l.Contains(0) << endl;
+	//Проверяем КК, чтобы он не зависил от других обьектов
+	SingleLinkedList p = l;
+	cout << "=======================================" << endl;
+	p.Print();
+	p.Add(100);
+	p.Print();
+	l.Print();
+	cout << boolalpha << (l == p) << endl;
+	l << (25); 
+	cout << endl;
+	cout << l[13].data << endl;
+	cout << (l.GetElementAt(13))->data << endl;
+	cout << "Pos: " << l.IndexOf(78) << endl;
+	l.Insert(5, 0);
+	l.Print();
+	l.Remove(78);
+	l.Print();
+	l.Add(5);
+	l.Print();
+
+	SingleLinkedList as;
+	as.Add(5);
+	as.Add(5);
+	as.Add(5);
+	as.Add(5);
+	as.Print();
+	as.RemoveAll(5);
+	as.Add(6);
+	as.Add(7);
+	as.Add(7);
+	//as.RemoveTail();
+	as.RemoveAt(2);
+	as.Print();
+	as.Add(7);
+	as.Add(7);
+	as.Add(7);
+	as.Add(7);
+	//as.Reverse();
+	as.Print();
+	
+	int size = as.GetCount();
+	int *mas = as.ToArray();
+	cout << "Dynamic massiv : " << endl;
+	for (int i = 0; i < size; i++)
+		cout << mas[i] << " ";
+	cout << endl;
+
+	SingleLinkedList oi;
+	oi.Add(5); // 5 4 3 2 1 
+	oi.Add(4); // 1 2 3 4 5
+	oi.Add(3);
+	oi.Add(2);
+	oi.Add(1);
+	oi.Print();
+	oi.Reverse();
+	oi.Print();
+	SingleLinkedList ok;
+	ok.Add(56);
+	ok.Add(12);
+	ok.Add(5);
+	ok.Add(24);
+	ok.Print();
+	ok.Sort();
+	ok.Print();
+}
