@@ -1,0 +1,162 @@
+/*2. Создайте класс Passport, который будет содержать паспортную информацию о гражданине какой - либо страны.
+С помощью механизма наследования, реализуйте класс ForeignPassport(загран), производный от Passport.
+Загран содержит помимо паспортных данных, также данные о визах и прохождении пограничного контроля.*/
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Element_s{
+public:
+	string s = "Unknown";
+	Element_s* next = nullptr;
+	Element_s(){};
+	Element_s(string s){ this->s = s; }
+};
+
+class List_s{
+public:
+	Element_s* head = nullptr;
+	unsigned count = 0;
+	List_s(){ head = nullptr; }
+	bool IsEmpty()
+	{ 
+		if (head == nullptr) return true;
+		else return false;
+	}
+	void Add(Element_s& elem)
+	{
+		if (IsEmpty())
+		{
+			head = &elem;
+			elem.next = nullptr;
+		}
+		else
+		{
+			elem.next = head;
+			head = &elem;
+		}
+	}
+	void Print()
+	{
+		Element_s* current;
+		current = head;
+		while (current != nullptr)
+		{
+			cout << current->s << endl;
+			current = current->next;
+		}
+	}
+};
+
+class Human{
+protected:
+	string name = "Unknown";
+	string surname = "Unknown";
+	string lastname = "Unknown";
+	unsigned age = 0;
+public:
+	//геттеры сеттеры
+	const string& GetName() const { return  name; }
+	const string& GetSurname() const { return  surname; }
+	const string& GetLastname() const { return  lastname; }
+	const int GetAge() const { return  age; }
+	void SetName(string n) { name = n; }
+	void SetSurname(string sn) { surname = sn; }
+	void SetLastname(string ln) { lastname = ln; }
+	void SetAge(unsigned a) { age = a; }
+	//конструкторы
+	Human(){};
+	Human(string n, string sn = "Unknown", string ln = "Unknown", unsigned age = 0)
+	{
+		name = n;
+		surname = sn;
+		lastname = ln;
+		this->age = age;
+	}
+};
+
+class Passport: public Human
+{
+protected:
+	string country = "Unknown";
+	string city = "Unknown";
+	string adress = "Unknown";
+public:
+	//геттеры
+	const string& GetCountry() const { return  country; }
+	const string& GetCity() const { return  city; }
+	const string& Adress() const { return  adress; }
+	//сеттеры
+	void SetCountry(string c) { country = c; }
+	void SetCity(string c) { city = c; }
+	void SetAdress(unsigned a) { adress = a; }
+	//конструкторы
+	Passport() :Human(){}
+	Passport(string n, string sn = "Unknown", string ln = "Unknown", unsigned a = 0)
+		:Human(n, sn, ln, a){}
+	Passport(string n, string sn, string ln, unsigned a, string co,
+		string ci = "Unknown", string ad = "Unknown") :
+		Human(n, sn, ln, a)
+	{
+		country = co;
+		city = ci;
+		adress = ad;
+	}
+	//прочие
+	void Print()
+	{
+		cout << name << " " << surname << " " << lastname << " " << age << endl;
+		cout << country << " " << city << " " << adress << endl;
+	}
+};
+
+class ZagranPassport: public Passport
+{
+protected:
+	List_s vises;
+	List_s pogran_kontrol;
+public:
+	//конструкторы
+	ZagranPassport(string n, string sn = "Unknown",
+		string ln = "Unknown", unsigned a = 0, string co = "Unknown",
+		string ci = "Unknown", string ad = "Unknown")
+		:Passport(n, sn, ln, a, co, ci, ad){};
+	const List_s& GetVises() { return vises; }
+	const List_s& GetPK() { return pogran_kontrol; }
+	void AddVisa(Element_s& s) { vises.Add(s); }
+	void AddPK(Element_s& s) { pogran_kontrol.Add(s); }
+	void Print()
+	{
+		Passport::Print();
+		cout << endl;
+		vises.Print();
+		cout << endl;
+		pogran_kontrol.Print();
+	}
+	
+};
+
+void main()
+{
+	/*Passport p("Vasya", "Petrovich", "Andrey", 23, "Zimbabva");
+	p.Print();*/
+	/*List_s l;
+	Element_s s("1");
+	Element_s s2("2");
+	l.Add(s);
+	l.Print();
+	l.Add(s2);
+	l.Print();*/
+	/*
+	l.Print();
+	l.Add("3");
+	l.Print();*/
+	ZagranPassport g("Ivanov","Ivan","Ivanovich", 28, "Ukrain", "Odessa", "Street");
+	Element_s visa1("Polsha");
+	Element_s visa2("Germany");
+	Element_s visa3("USA");
+	g.AddVisa(visa1);
+	g.AddVisa(visa2);
+	g.AddVisa(visa3);
+	g.Print();
+}
