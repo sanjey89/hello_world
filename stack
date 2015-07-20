@@ -1,0 +1,109 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+class Stack
+{
+	int* ptr_stack;
+	int top; // индекс вершины стека
+	int size;
+
+public:
+	Stack() : top(0), size(10)
+	{
+		ptr_stack = new int[10];
+	}
+
+	void Clear()
+	{
+		top = 0;
+		delete[]ptr_stack;
+		size = 10;
+		ptr_stack = new int[size];
+	}
+
+	bool IsEmpty()
+	{
+		return top == 0;
+	}
+
+	bool IsFull()
+	{
+		return top == size;
+	}
+
+	int GetCount()
+	{
+		return top;
+	}
+
+	void Push(int digit)
+	{
+		if (!IsFull())
+			ptr_stack[top++] = digit;
+		else
+		{
+			//size *= 2;
+			int* temp_stack = new int[size * 2];
+			for (int i = 0; i < size; i++)
+				temp_stack[i] = ptr_stack[i];
+			delete[] ptr_stack;
+			ptr_stack = temp_stack;
+			ptr_stack[top++] = digit;
+			size *= 2;
+		}
+	}
+	void PushIf(int digit)
+	{
+		if (Contains(digit)) return;
+		Push(digit);
+	}
+
+	int Pop()
+	{
+		if (!IsEmpty())
+			return ptr_stack[--top];
+		else throw "Stack is empty!";
+	}
+	int Peek()
+	{
+		if (!IsEmpty())
+			return ptr_stack[top-1];
+		else throw "Stack is empty!";
+	}
+	bool Contains(int value) const
+	{
+		for (int i = 0; i < size; i++)
+		if (ptr_stack[i] == value)
+			return true;
+		return false;
+	}
+	~Stack()
+	{
+		delete[]ptr_stack;
+		ptr_stack = nullptr;
+	}
+};
+
+void main()
+{
+	system("title Пользовательский адаптер Stack (статический массив)");
+	srand(time(0));
+	rand();
+
+	Stack st;
+
+	while (st.IsFull() == false)
+		st.Push(rand() % 90 + 10);
+	st.Push(rand() % 90 + 10);
+	st.Push(111);
+	st.Push(rand() % 90 + 10);
+	cout << st.Contains(111) << endl;
+	cout << st.Peek() << endl;
+	st.PushIf(111);
+	st.PushIf(123);
+	//st.Clear();
+	while (st.IsEmpty() == false)
+		cout << st.Pop() << "  ";
+	cout << "\n\n";
+}
