@@ -1,0 +1,134 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+template <class T>
+class Stack
+{
+	T* ptr_stack;
+	int top; // индекс вершины стека
+	int size;
+
+public:
+	Stack() : top(0), size(10)
+	{
+		ptr_stack = new T[10];
+	}
+
+	void Clear()
+	{
+		top = 0;
+		delete[]ptr_stack;
+		size = 10;
+		ptr_stack = new T[size];
+	}
+
+	bool IsEmpty()
+	{
+		return top == 0;
+	}
+
+	bool IsFull()
+	{
+		return top == size;
+	}
+
+	int GetCount()
+	{
+		return top;
+	}
+
+	void Push(int digit)
+	{
+		if (!IsFull())
+			ptr_stack[top++] = digit;
+		else
+		{
+			//size *= 2;
+			T* temp_stack = new T[size * 2];
+			for (int i = 0; i < size; i++)
+				temp_stack[i] = ptr_stack[i];
+			delete[] ptr_stack;
+			ptr_stack = temp_stack;
+			ptr_stack[top++] = digit;
+			size *= 2;
+		}
+	}
+	void PushIf(T digit)
+	{
+		if (Contains(digit)) return;
+		Push(digit);
+	}
+
+	T Pop()
+	{
+		if (!IsEmpty())
+			return ptr_stack[--top];
+		else throw "Stack is empty!";
+	}
+	T Peek()
+	{
+		if (!IsEmpty())
+			return ptr_stack[top - 1];
+		else throw "Stack is empty!";
+	}
+	bool Contains(T value) const
+	{
+		for (int i = 0; i < size; i++)
+		if (ptr_stack[i] == value)
+			return true;
+		return false;
+	}
+	bool Arifmetic(char* ar)
+	{
+		char st[8] = { '{', '[', '<', '(', ')', ']', '>', '{' };
+		char* ptr_s = ar;
+		while (*ptr_s != '\0')
+		{
+			char key;
+			switch (*ptr_s)
+			{
+			case st[0]:
+			case st[1]:
+			case st[2]:
+			case st[3]:	Push(*ptr_s);
+				break;
+			case st[4]:
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '(') return false;
+				break;
+			case st[5]:
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '[') return false;
+				break;
+			case st[6]:
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '<') return false;
+				break;
+			case st[7]:
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '{') return false;
+				break;
+			}
+			ptr_s++;
+		}
+		if (IsEmpty()) return true;
+		return false;
+	}
+	~Stack()
+	{
+		delete[]ptr_stack;
+		ptr_stack = nullptr;
+	}
+};
+
+void main()
+{
+	Stack<char> s;
+	cout << boolalpha << s.Arifmetic("{(5-[3+<9>])-4}") << endl;
+	cout << boolalpha << s.Arifmetic("{(>5-<[3+)9]-4}") << endl;
+}
