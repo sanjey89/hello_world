@@ -2,16 +2,17 @@
 #include <ctime>
 using namespace std;
 
+template <class T>
 class Stack
 {
-	int* ptr_stack;
+	T* ptr_stack;
 	int top; // индекс вершины стека
 	int size;
 
 public:
 	Stack() : top(0), size(10)
 	{
-		ptr_stack = new int[10];
+		ptr_stack = new T[10];
 	}
 
 	void Clear()
@@ -19,7 +20,7 @@ public:
 		top = 0;
 		delete[]ptr_stack;
 		size = 10;
-		ptr_stack = new int[size];
+		ptr_stack = new T[size];
 	}
 
 	bool IsEmpty()
@@ -44,7 +45,7 @@ public:
 		else
 		{
 			//size *= 2;
-			int* temp_stack = new int[size * 2];
+			T* temp_stack = new T[size * 2];
 			for (int i = 0; i < size; i++)
 				temp_stack[i] = ptr_stack[i];
 			delete[] ptr_stack;
@@ -53,25 +54,25 @@ public:
 			size *= 2;
 		}
 	}
-	void PushIf(int digit)
+	void PushIf(T digit)
 	{
 		if (Contains(digit)) return;
 		Push(digit);
 	}
 
-	int Pop()
+	T Pop()
 	{
 		if (!IsEmpty())
 			return ptr_stack[--top];
 		else throw "Stack is empty!";
 	}
-	int Peek()
+	T Peek()
 	{
 		if (!IsEmpty())
 			return ptr_stack[top - 1];
 		else throw "Stack is empty!";
 	}
-	bool Contains(int value) const
+	bool Contains(T value) const
 	{
 		for (int i = 0; i < size; i++)
 		if (ptr_stack[i] == value)
@@ -106,7 +107,7 @@ public:
 				key = Pop();
 				if (key != '<') return false;
 				break;
-			case '}':	
+			case '}':
 				if (IsEmpty()) return false;
 				key = Pop();
 				if (key != '{') return false;
@@ -126,7 +127,7 @@ public:
 
 void main()
 {
-	Stack s;
+	Stack<char> s;
 	cout << boolalpha << s.Arifmetic("{(5-[3+<9>])-4}") << endl;
 	cout << boolalpha << s.Arifmetic("{(>5-<[3+)9]-4}") << endl;
 }
