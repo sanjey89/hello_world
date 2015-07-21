@@ -1,0 +1,132 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+class Stack
+{
+	int* ptr_stack;
+	int top; // индекс вершины стека
+	int size;
+
+public:
+	Stack() : top(0), size(10)
+	{
+		ptr_stack = new int[10];
+	}
+
+	void Clear()
+	{
+		top = 0;
+		delete[]ptr_stack;
+		size = 10;
+		ptr_stack = new int[size];
+	}
+
+	bool IsEmpty()
+	{
+		return top == 0;
+	}
+
+	bool IsFull()
+	{
+		return top == size;
+	}
+
+	int GetCount()
+	{
+		return top;
+	}
+
+	void Push(int digit)
+	{
+		if (!IsFull())
+			ptr_stack[top++] = digit;
+		else
+		{
+			//size *= 2;
+			int* temp_stack = new int[size * 2];
+			for (int i = 0; i < size; i++)
+				temp_stack[i] = ptr_stack[i];
+			delete[] ptr_stack;
+			ptr_stack = temp_stack;
+			ptr_stack[top++] = digit;
+			size *= 2;
+		}
+	}
+	void PushIf(int digit)
+	{
+		if (Contains(digit)) return;
+		Push(digit);
+	}
+
+	int Pop()
+	{
+		if (!IsEmpty())
+			return ptr_stack[--top];
+		else throw "Stack is empty!";
+	}
+	int Peek()
+	{
+		if (!IsEmpty())
+			return ptr_stack[top - 1];
+		else throw "Stack is empty!";
+	}
+	bool Contains(int value) const
+	{
+		for (int i = 0; i < size; i++)
+		if (ptr_stack[i] == value)
+			return true;
+		return false;
+	}
+	bool Arifmetic(char* ar)
+	{
+		char* ptr_s = ar;
+		while (*ptr_s != '\0')
+		{
+			char key;
+			switch (*ptr_s)
+			{
+			case '{':
+			case '[':
+			case '<':
+			case '(':	Push(*ptr_s);
+				break;
+			case ')':
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '(') return false;
+				break;
+			case ']':
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '[') return false;
+				break;
+			case '>':
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '<') return false;
+				break;
+			case '}':	
+				if (IsEmpty()) return false;
+				key = Pop();
+				if (key != '{') return false;
+				break;
+			}
+			ptr_s++;
+		}
+		if (IsEmpty()) return true;
+		return false;
+	}
+	~Stack()
+	{
+		delete[]ptr_stack;
+		ptr_stack = nullptr;
+	}
+};
+
+void main()
+{
+	Stack s;
+	cout << boolalpha << s.Arifmetic("{(5-[3+<9>])-4}") << endl;
+	cout << boolalpha << s.Arifmetic("{(>5-<[3+)9]-4}") << endl;
+}
