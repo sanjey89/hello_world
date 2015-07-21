@@ -81,38 +81,21 @@ public:
 	}
 	bool Arifmetic(char* ar)
 	{
-		char st[8] = { '{', '[', '<', '(', ')', ']', '>', '{' };
+		char st[8] = { '{', '}', '[', ']', '<', '>', '(', ')' };
 		char* ptr_s = ar;
 		while (*ptr_s != '\0')
 		{
-			char key;
-			switch (*ptr_s)
+			for (int i = 0; i < 8; i += 2)
 			{
-			case st[0]:
-			case st[1]:
-			case st[2]:
-			case st[3]:	Push(*ptr_s);
-				break;
-			case st[4]:
-				if (IsEmpty()) return false;
-				key = Pop();
-				if (key != '(') return false;
-				break;
-			case st[5]:
-				if (IsEmpty()) return false;
-				key = Pop();
-				if (key != '[') return false;
-				break;
-			case st[6]:
-				if (IsEmpty()) return false;
-				key = Pop();
-				if (key != '<') return false;
-				break;
-			case st[7]:
-				if (IsEmpty()) return false;
-				key = Pop();
-				if (key != '{') return false;
-				break;
+				if (*ptr_s == st[i]) Push(*ptr_s);
+			}
+			for (int i = 1; i < 8; i += 2)
+			{
+				if (*ptr_s == st[i])
+				{
+					if (st[i - 1] == Pop());
+					else return false;
+				}
 			}
 			ptr_s++;
 		}
