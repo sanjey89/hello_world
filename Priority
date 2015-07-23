@@ -1,122 +1,41 @@
 #include <iostream>
 using namespace std;
 
+#include <iostream>
+using namespace std;
+
 class List
 {
 private:
 	struct Elem{
 		int data;
-		int prior;
 		Elem* next;
 		Elem* prev;
 	};
 	Elem* head;
 	Elem* tail;
 	int count;
-	int CheckPrior(Elem& check)
-	{
-		Elem* current = head;
-		int ind = 0;
-		if (head == nullptr) return ind;
-		while (current != nullptr)
-		{
-			if (current->prior > check.prior)
-			{
-				ind++;
-				current = current->next;
-			}
-			else return ind;
-		}
-		return ind;
-	}
-	void AddHead(int data, int prior)
-	{
-		Elem* temp = new Elem;
-		temp->data = data;
-		if (head == nullptr)
-		{
-			head = tail = temp;
-			head->next = nullptr;
-			head->prev = nullptr;
-		}
-		else
-		{
-			temp->next = head;
-			head->prev = temp;
-			head = temp;
-			temp->prev = nullptr;
-		}
-		//count++;
-	}
-	void AddTail(int data, int prior)
-	{
-		Elem* temp = new Elem;
-		if (head == nullptr)
-		{
-			head = temp;
-			tail = temp;
-			head->data = data;
-			head->next = nullptr;
-			head->prev = nullptr;
-			return;
-		}
-		temp->data = data;
-		temp->prior = prior;
-		temp->next = nullptr;
-		temp->prev = tail;
-		tail->next = temp;
-		tail = temp;
-		//count++;
-	}
 public:
 	List(){
 		head = tail = nullptr;
 		count = 0;
 	}
-	void AddElem(int data, int prior)
+	void AddElem(int data)
 	{
 		Elem* temp = new Elem;
 		temp->data = data;
-		temp->prior = prior;
-		int ind = CheckPrior(*temp);
 		if (head == nullptr)
 		{
 			head = tail = temp;
 			head->next = nullptr;
 			head->prev = nullptr;
 		}
-		else if (ind == 0)
+		else
 		{
 			temp->next = head;
 			head->prev = temp;
 			head = temp;
 			temp->prev = nullptr;
-		}
-		else if (count == ind)
-		{
-			temp->next = nullptr;
-			temp->prev = tail;
-			tail->next = temp;
-			tail = temp;
-		}
-		else if (count == 1)
-		{
-			if (head->prior < prior)
-				AddHead(data, prior);
-			else AddTail(data, prior);
-		}
-		else
-		{
-			Elem* get_elem = GetElemAtIndex(ind);
-			if (get_elem == nullptr)
-			{
-				cout << "error";
-				return;
-			}
-			temp->prev = get_elem->prev;
-			temp->next = get_elem;
-			(temp->prev)->next = temp;
-			(temp->next)->prev = temp;
 		}
 		count++;
 	}
@@ -194,7 +113,7 @@ public:
 		else return false;
 		return true;
 	}
-	Elem* GetElemAtIndex(int index)
+	Elem* GetElemAtIndex(unsigned index)
 	{
 		if (head == nullptr) return nullptr;
 		else
@@ -205,6 +124,30 @@ public:
 				current = current->next;
 			}
 			return current;
+		}
+	}
+	void Insert(int data, unsigned index)
+	{
+		if (index > count) return;
+		if (index == 0)
+		{
+			AddElem(data);
+		}
+		else if (index == count)
+		{
+			AddTail(data);
+		}
+		else
+		{
+			Elem* temp = new Elem;
+			temp->data = data;
+			Elem* change = GetElemAtIndex(index);
+			if ((change->prev)->next != nullptr)
+				(change->prev)->next = temp;
+			temp->prev = change->prev;
+			change->prev = temp;
+			temp->next = change;
+			count++;
 		}
 	}
 	bool RemoveAtIndex(int index)
@@ -244,7 +187,6 @@ public:
 			current = current->next;
 		}
 	}
-
 	void Print()
 	{
 		Elem* current = head;
@@ -268,21 +210,61 @@ public:
 class Queue
 {
 	List ls;
+	List pr;
 public:
 	void Push(int value, int prior)
 	{
-		ls.AddElem(value, prior);
+		bool key = true;
+		if (pr.IsEmpty())
+		{
+			key = false;
+			ls.AddElem(value);
+			pr.AddElem(prior);
+		}
+		else
+		for (int i = 0; i < ls.GetCount(); i++)
+		{
+			int prior2 = pr.GetElemAtIndex(i)->data;
+			if (prior >= prior2)
+			{
+				if (i == 0)
+				{
+					ls.AddElem(value);
+					pr.AddElem(prior);
+					return;
+				}
+				else if (i == ls.GetCount())
+				{
+					ls.AddTail(value);
+					pr.AddTail(prior);
+					return;
+				}
+				else
+				{
+					ls.Insert(value, i);
+					pr.Insert(prior, i);
+					return;
+				}
+			}
+		}
+		if (key)
+		{
+			ls.AddTail(value);
+			pr.AddTail(prior);
+		}
+		
 	}
 	int Pop()
 	{
-		int temp = ls.GetElemAtIndex(ls.GetCount() - 1)->data;
-		ls.RemoveTail();
+		int temp = ls.GetElemAtIndex(0)->data;
+		ls.RemoveHead();
+		pr.RemoveHead();
 		return temp;
 	}
 	void Print()
 	{
 		ls.Print();
-		
+
 	}
 	int GetCount()
 	{
@@ -292,18 +274,45 @@ public:
 
 int main(void)
 {
+	/*List l;
+	l.AddElem(10);
+	l.AddElem(20);
+	l.AddElem(21);
+	l.AddElem(22);
+	l.AddTail(12);
+	l.RemoveHead();
+	cout << l.SearchAsIndex(1) << endl;
+	l.Print();
+	cout << endl;
+	l.PrintRevers();
+	cout << endl;
+	l.Clear();
+	l.Print();
+	l.AddTail(0);
+	l.AddTail(1);
+	l.AddTail(2);
+	l.AddTail(3);
+	l.Print();
+	cout << endl;
+	cout << l.GetCount();
+	cout << endl;
+	cout << l.GetElemAtIndex(2)->data;
+	l.RemoveAtIndex(2);
+	cout << endl;
+	l.Print();*/
 	Queue q;
-	q.Push(100, 100);
+	q.Push(80, 80);
 	q.Push(50, 50);
-	q.Push(90, 90);
-	q.Push(120, 120);
-	q.Push(10, 10);
+	q.Push(100, 100);
+	q.Push(150, 150);
+	q.Push(100, 100);
+	//q.Print();
+	cout << q.Pop() << endl;
+	cout << q.Pop() << endl;
+	cout << q.Pop() << endl;
+	cout << q.Pop() << endl;
+	cout << q.Pop() << endl;
 	q.Print();
-	cout << endl;
-	//cout << q.GetCount();
-	cout << endl;
-	q.Pop();
-	q.Print();
-	//cout << endl << q.GetCount();
-	cout << endl;
+	//cout << q.Pop() << endl;
+	//cout << q.Pop() << endl;
 }
