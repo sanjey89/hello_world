@@ -1,0 +1,262 @@
+#include <iostream>
+using namespace std;
+
+class List
+{
+private:
+	struct Elem{
+		int data;
+		Elem* next;
+		Elem* prev;
+	};
+	Elem* head;
+	Elem* tail;
+	int count;
+public:
+	List(){
+		head = tail = nullptr;
+		count = 0;
+	}
+	void AddElem(int data)
+	{
+		Elem* temp = new Elem;
+		temp->data = data;
+		if (head == nullptr)
+		{
+			head = tail = temp;
+			head->next = nullptr;
+			head->prev = nullptr;
+		}
+		else
+		{
+			temp->next = head;
+			head->prev = temp;
+			head = temp;
+			temp->prev = nullptr;
+		}
+		count++;
+	}
+	void AddTail(int data)
+	{
+		Elem* temp = new Elem;
+		if (head == nullptr)
+		{
+			head = temp;
+			tail = temp;
+			head->data = data;
+			head->next = nullptr;
+			head->prev = nullptr;
+			return;
+		}
+		temp->data = data;
+		temp->next = nullptr;
+		temp->prev = tail;
+		tail->next = temp;
+		tail = temp;
+		count++;
+	}
+	int GetCount() const
+	{
+		return count;
+	}
+	int GetHead() const
+	{
+		return head->data;
+	}
+
+	int GetTail() const
+	{
+		return tail->data;
+	}
+
+	bool RemoveHead()
+	{
+		if (head != nullptr && count > 1)
+		{
+			Elem* temp = head;
+			head = head->next;
+			head->prev = nullptr;
+			delete temp;
+			count--;
+		}
+		else if (count == 1)
+		{
+			delete head;
+			head = nullptr;
+			tail = nullptr;
+			count--;
+		}
+		else return false;
+		return true;
+	}
+
+	bool RemoveTail()
+	{
+		if (head != nullptr && count > 1)
+		{
+			Elem* temp = tail;
+			tail = tail->prev;
+			tail->next = nullptr;
+			delete temp;
+			count--;
+		}
+		else if (count == 1)
+		{
+			delete tail;
+			head = nullptr;
+			tail = nullptr;
+			count--;
+		}
+		else return false;
+		return true;
+	}
+	Elem* GetElemAtIndex(unsigned index)
+	{
+		if (head == nullptr) return nullptr;
+		else
+		{
+			Elem* current = head;
+			for (int i = 0; i < index; i++)
+			{
+				current = current->next;
+			}
+			return current;
+		}
+	}
+	bool RemoveAtIndex(int index)
+	{
+		Elem* current = head;
+		if (index == 0)
+			return RemoveHead();
+		else if (index == count)
+			return RemoveTail();
+		else if (index > count) return false;
+		else
+		{
+			Elem* temp = GetElemAtIndex(index);
+			(temp->next)->prev = temp->prev;
+			(temp->prev)->next = temp->next;
+			delete temp;
+		}
+	}
+	void Clear()
+	{
+
+		while (RemoveHead()){};
+	}
+	bool IsEmpty()
+	{
+		if (head == nullptr)
+			return true;
+		return false;
+	}
+	int SearchAsIndex(int index)
+	{
+		Elem* current = head;
+		for (int i = 0;; i++)
+		{
+			if (i == index)
+				return current->data;
+			current = current->next;
+		}
+	}
+	void Print()
+	{
+		Elem* current = head;
+		while (current != nullptr)
+		{
+			cout << current->data << " ";
+			current = current->next;
+		}
+	}
+	void PrintRevers()
+	{
+		Elem* current = tail;
+		while (current != nullptr)
+		{
+			cout << current->data << " ";
+			current = current->prev;
+		}
+	}
+};
+
+class Queue
+{
+	List ls;
+public:
+	void PushTail(int value)
+	{
+		ls.AddTail(value);
+	}
+	int PopTail()
+	{
+		int temp = ls.GetElemAtIndex(ls.GetCount() - 1)->data;
+		ls.RemoveTail();
+		return temp;
+	}
+	void PushHead(int value)
+	{
+		ls.AddElem(value);
+	}
+	int PopHead()
+	{
+		int temp = ls.GetElemAtIndex(0)->data;
+		ls.RemoveHead();
+		return temp;
+	}
+	void Print()
+	{
+		ls.Print();
+	}
+};
+
+int main(void)
+{
+	/*List l;
+	l.AddElem(10);
+	l.AddElem(20);
+	l.AddElem(21);
+	l.AddElem(22);
+	l.AddTail(12);
+	l.RemoveHead();
+	cout << l.SearchAsIndex(1) << endl;
+	l.Print();
+	cout << endl;
+	l.PrintRevers();
+	cout << endl;
+	l.Clear();
+	l.Print();
+	l.AddTail(0);
+	l.AddTail(1);
+	l.AddTail(2);
+	l.AddTail(3);
+	l.Print();
+	cout << endl;
+	cout << l.GetCount();
+	cout << endl;
+	cout << l.GetElemAtIndex(2)->data;
+	l.RemoveAtIndex(2);
+	cout << endl;
+	l.Print();*/
+	Queue q;
+	q.PushHead(1);
+	q.PushHead(2);
+	q.PushHead(3);
+	q.PushTail(0);
+	q.Print();
+	cout << endl;
+	q.PopHead();
+	q.Print();
+	cout << endl;
+	q.PopTail();
+	q.Print();
+	cout << endl;
+	q.PopHead();
+	q.Print();
+	cout << endl;
+	/*q.Pop();
+	cout << endl;
+	q.Print();*//*
+	cout << q.Pop() << endl;
+	cout << q.Pop() << endl;*/
+}
