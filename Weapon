@@ -1,0 +1,143 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class AbstractWeapon
+{
+public:
+	virtual void Action1()
+	{
+		cout << "Weapon " << " " << "strike\n";
+	}
+	virtual void Action2()
+	{
+		cout << "Weapon " << " " << "shot\n";
+	}
+};
+
+class knife : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Knife " << " " << "strike\n";
+	}
+	void Action2()
+	{
+		cout << "Knife " << " " << "shot\n";
+	}
+};
+
+class shield : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Shield " << " " << "strike\n";
+	}
+	void Action2()
+	{
+		cout << "shield " << " " << "define\n";
+	}
+};
+
+class pistol : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Pistol " << " " << "strike\n";
+	}
+	void Action2()
+	{
+		cout << "Pistol " << " " << "shot\n";
+	}
+};
+
+class automatic : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Automatic " << " " << "strike\n";
+	}
+	void Action2()
+	{
+		cout << "Automatic " << " " << "shot\n";
+	}
+};
+
+class staff : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Staff " << " " << "put a spell\n";
+	}
+	void Action2()
+	{
+		cout << "Staff " << " " << "turned the curse\n";
+	}
+};
+
+class brass_knuckles : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Brass knuckles " << " " << "blow!\n";
+	}
+	void Action2()
+	{
+		cout << "Brass knuckles " << " " << "strike\n";
+	}
+};
+
+class grenade : public AbstractWeapon
+{
+public:
+	void Action1()
+	{
+		cout << "Grenade " << " " << "exploded!\n";
+	}
+	void Action2()
+	{
+		cout << "Grenade " << " " << "hit\n";
+	}
+};
+
+void main()
+{
+	AbstractWeapon* aw[7];
+	aw[0] = new knife;
+	aw[1] = new shield;
+	aw[2] = new pistol;
+	aw[3] = new automatic;
+	aw[4] = new staff;
+	aw[5] = new brass_knuckles;
+	aw[6] = new grenade;
+	int key = 0;
+	int key2 = 0;
+	do
+	{
+		cout << "Choise weapon:\n";
+		cout << "0 - knife\n";
+		cout << "1 - shield\n";
+		cout << "2 - pistol\n";
+		cout << "3 - automatic\n";
+		cout << "4 - staff\n";
+		cout << "5 - brass knuckles\n";
+		cout << "6 - grenade\n";
+		cout << "7 - EXIT\n";
+		cin >> key;
+		if (key == 7) break;
+		cout << "Choise action:\n1 - action #1 or 2 - action #2 or 3 - EXIT\n";
+		cin >> key2;
+		if (key2 == 1)
+			aw[key]->Action1();
+		else
+			aw[key]->Action2();
+		cout << endl;
+	} while (key2 != 3);
+
+}
