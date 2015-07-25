@@ -6,50 +6,212 @@
 using namespace std;
 
 template <class T>
-class Element_s{
-public:
-	T s;
-	Element_s* next = nullptr;
-	Element_s(){};
-	Element_s(T s){ this->s = s; }
+struct Elem{
+	T data;
+	Elem<T>* next;
+	Elem<T>* prev;
 };
-
-class List_s{
+template <class T>
+class List
+{
+private:
+	Elem<T>* head;
+	Elem<T>* tail;
+	int count;
 public:
-	Element_s* head;
-	unsigned count = 0;
-	List_s(){ head = nullptr; }
-	bool IsEmpty()
-	{ 
-		if (head == nullptr) return true;
-		else return false;
+	List(){
+		head = tail = nullptr;
+		count = 0;
 	}
-	void Add(Element_s& elem)
+	void AddElem(T data)
 	{
-		if (IsEmpty())
+		Elem<T>* temp = new Elem<T>;
+		temp->data = data;
+		if (head == nullptr)
 		{
-			head = &elem;
-			elem.next = nullptr;
+			head = tail = temp;
+			head->next = nullptr;
+			head->prev = nullptr;
 		}
 		else
 		{
-			elem.next = head;
-			head = &elem;
+			temp->next = head;
+			head->prev = temp;
+			head = temp;
+			temp->prev = nullptr;
+		}
+		count++;
+	}
+	void AddTail(T data)
+	{
+		Elem<T>* temp = new Elem<T>;
+		if (head == nullptr)
+		{
+			head = temp;
+			tail = temp;
+			head->data = data;
+			head->next = nullptr;
+			head->prev = nullptr;
+			return;
+		}
+		temp->data = data;
+		temp->next = nullptr;
+		temp->prev = tail;
+		tail->next = temp;
+		tail = temp;
+		count++;
+	}
+	int GetCount() const
+	{
+		return count;
+	}
+	T& GetHead() const
+	{
+		return head->data;
+	}
+
+	T& GetTail() const
+	{
+		return tail->data;
+	}
+
+	bool RemoveHead()
+	{
+		if (head != nullptr && count > 1)
+		{
+			Elem<T>* temp = head;
+			head = head->next;
+			head->prev = nullptr;
+			delete temp;
+			count--;
+		}
+		else if (count == 1)
+		{
+			delete head;
+			head = nullptr;
+			tail = nullptr;
+			count--;
+		}
+		else return false;
+		return true;
+	}
+
+	bool RemoveTail()
+	{
+		if (head != nullptr && count > 1)
+		{
+			Elem<T>* temp = tail;
+			tail = tail->prev;
+			tail->next = nullptr;
+			delete temp;
+			count--;
+		}
+		else if (count == 1)
+		{
+			delete tail;
+			head = nullptr;
+			tail = nullptr;
+			count--;
+		}
+		else return false;
+		return true;
+	}
+	Elem<T>* GetElemAtIndex(unsigned index)
+	{
+		/*if (head == nullptr) return nullptr;
+		else
+		{*/
+			Elem<T>* current = head;
+			for (int i = 0; i < index; i++)
+			{
+				current = current->next;
+			}
+			return current;
+		/*}*/
+	}
+	bool RemoveAtIndex(int index)
+	{
+		Elem<T>* current = head;
+		if (index == 0)
+			return RemoveHead();
+		else if (index == count)
+			return RemoveTail();
+		else if (index > count) return false;
+		else
+		{
+			Elem<T>* temp = GetElemAtIndex(index);
+			(temp->next)->prev = temp->prev;
+			(temp->prev)->next = temp->next;
+			delete temp;
+		}
+	}
+	void Clear()
+	{
+
+		while (RemoveHead()){};
+	}
+	bool IsEmpty()
+	{
+		if (head == nullptr)
+			return true;
+		return false;
+	}
+	T& SearchAsIndex(int index)
+	{
+		Elem<T>* current = head;
+		for (int i = 0;; i++)
+		{
+			if (i == index)
+				return current->data;
+			current = current->next;
 		}
 	}
 	void Print()
 	{
-		Element_s* current;
-		current = head;
+		Elem<T>* current = head;
 		while (current != nullptr)
 		{
-			cout << current->s << endl;
+			cout << current->data << " ";
 			current = current->next;
 		}
 	}
+	void PrintAdIndex(int index)
+	{
+		Elem<T>* current = head;
+	//	if (head = nullptr) return;
+	//	cout << current << endl;
+		for (int i = 0; i < index; i++)
+		{
+			current = current->next;
+		}
+		cout << current->data << " ";
+	}
+	void PrintRevers()
+	{
+		Elem<T>* current = tail;
+		while (current != nullptr)
+		{
+			cout << current->data << " ";
+			current = current->prev;
+		}
+	}
 };
-
-class Human{
+class DATA
+{
+public:
+	int day = 1;
+	int month = 1;
+	int year = 1900;
+public:
+	DATA(){};
+	DATA(int d, int m = 1, int y = 1900) :day(d), month(m), year(y){};
+	friend ostream& operator<<(ostream& os, const DATA& dt)
+	{
+		cout << dt.day << "." << dt.month << "." << dt.year;
+		return os;
+	}
+};
+/*class Human{
 protected:
 	string name = "Unknown";
 	string surname = "Unknown";
@@ -74,73 +236,121 @@ public:
 		lastname = ln;
 		this->age = age;
 	}
-};
+};*/
 
-class Passport: public Human
+class Passport
 {
 protected:
+	string name = "Unknown";
+	string surname = "Unknown";
+	string lastname = "Unknown";
+	DATA data = { 1, 1, 1900 };
 	string country = "Unknown";
 	string city = "Unknown";
 	string adress = "Unknown";
 public:
 	//геттеры
+	const string& GetName() const { return  name; }
+	const string& GetSurname() const { return  surname; }
+	const string& GetLastname() const { return  lastname; }
+	const DATA GetData() const { return  data; }
 	const string& GetCountry() const { return  country; }
 	const string& GetCity() const { return  city; }
 	const string& Adress() const { return  adress; }
 	//сеттеры
 	void SetCountry(string c) { country = c; }
 	void SetCity(string c) { city = c; }
-	void SetAdress(unsigned a) { adress = a; }
+	void SetAdress(string a) { adress = a; }
+	void SetName(string n) { name = n; }
+	void SetSurname(string sn) { surname = sn; }
+	void SetLastname(string ln) { lastname = ln; }
+	void SetData(DATA a) { data = a; }
 	//конструкторы
-	Passport() :Human(){}
-	Passport(string n, string sn = "Unknown", string ln = "Unknown", unsigned a = 0)
-		:Human(n, sn, ln, a){}
-	Passport(string n, string sn, string ln, unsigned a, string co,
-		string ci = "Unknown", string ad = "Unknown") :
-		Human(n, sn, ln, a)
+	Passport(){};
+	Passport(Passport& oth)
 	{
-		country = co;
+		name = oth.name;
+		surname = oth.surname;
+		lastname = oth.lastname;
+		data = oth.data;
+		country = oth.country;
+		city = oth.city;
+		adress = oth.adress;
+	}
+	Passport(string n, string sn = "Unknown", string ln = "Unknown", DATA d = { 1, 1, 1900 },
+		string c = "Unknown", string ci = "Unknown", string ad = "Unknown")
+	{
+		name = n;
+		surname = sn;
+		lastname = ln;
+		data = d;
+		country = c;
 		city = ci;
 		adress = ad;
 	}
 	//прочие
 	void Print()
 	{
-		cout << name << " " << surname << " " << lastname << " " << age << endl;
+		cout << name << " " << surname << " " << lastname << " "  << endl;
+		cout << data.day << "." << data.month << "." << data.year << endl;
 		cout << country << " " << city << " " << adress << endl;
 	}
 };
 
-class ZagranPassport: public Passport
+class TravelPass : public Passport
 {
 protected:
-	List_s vises;
-	List_s pogran_kontrol;
+	List<string> vises;
+	List<DATA> vis_data;
+	List<string> pogran_kontrol;
+	List<DATA> pogran_data;
 public:
 	//конструкторы
-	ZagranPassport(string n, string sn = "Unknown",
+	TravelPass(string n, string sn = "Unknown",
 		string ln = "Unknown", unsigned a = 0, string co = "Unknown",
 		string ci = "Unknown", string ad = "Unknown")
 		:Passport(n, sn, ln, a, co, ci, ad){};
-	const List_s& GetVises() { return vises; }
-	const List_s& GetPK() { return pogran_kontrol; }
-	void AddVisa(Element_s& s) { vises.Add(s); }
-	void AddPK(Element_s& s) { pogran_kontrol.Add(s); }
+	TravelPass(Passport in) :Passport(in){}
+	//const List<string>& GetVises() { return vises; }
+	//const List<string>& GetPK() { return pogran_kontrol; }
+	void AddVisa(string s, DATA d) 
+	{ 
+		vises.AddElem(s); 
+		vis_data.AddElem(d);
+	}
+	void AddPK(string s, DATA d)
+	{
+		pogran_kontrol.AddElem (s); 
+		pogran_data.AddElem(d);
+	}
 	void Print()
 	{
 		Passport::Print();
 		cout << endl;
-		vises.Print();
+		cout << "VISES:\n";
+		for (int i = 0; i < vises.GetCount(); i++)
+		{	
+			vis_data.PrintAdIndex(i);
+			vises.PrintAdIndex(i);
+			cout << endl;
+		}
+		cout << "\nPOGRAN CONTROL:\n";
+		for (int i = 0; i < vises.GetCount(); i++)
+		{
+			pogran_data.PrintAdIndex(i);
+			pogran_kontrol.PrintAdIndex(i);
+			cout << endl;
+		}
 		cout << endl;
 		pogran_kontrol.Print();
 	}
-	
 };
 
 void main()
 {
-	/*Passport p("Vasya", "Petrovich", "Andrey", 23, "Zimbabva");
-	p.Print();*/
+
+	Passport p("Vasya", "Petrovich", "Andrey", { 23, 01, 1990 }, "Ukrain", "Odessa", "Street");
+	p.Print();
 	/*List_s l;
 	Element_s s("1");
 	Element_s s2("2");
@@ -152,12 +362,36 @@ void main()
 	l.Print();
 	l.Add("3");
 	l.Print();*/
-	ZagranPassport g("Ivanov","Ivan","Ivanovich", 28, "Ukrain", "Odessa", "Street");
+	/*ZagranPassport g("Ivanov", "Ivan", "Ivanovich", 28, "Ukrain", "Odessa", "Street");
 	Element_s visa1("Polsha");
 	Element_s visa2("Germany");
 	Element_s visa3("USA");
 	g.AddVisa(visa1);
 	g.AddVisa(visa2);
 	g.AddVisa(visa3);
-	g.Print();
+	g.Print();*/
+	/*List<int> l;
+	l.AddElem(5);
+	l.Print();
+	l.AddTail(6);
+	cout << endl;
+	l.Print();
+	l.Clear();
+	l.Print();*/
+	cout << endl;
+	TravelPass zp(p);
+	//zp.Print();
+	zp.AddVisa("USA", { 12, 7, 2013 });
+	zp.AddVisa("Thailand", { 11, 8, 2014 });
+	zp.AddVisa("Germany", { 12, 7, 2013 });
+	zp.AddVisa("England", { 11, 8, 2014 });
+	zp.AddVisa("Norvegy", { 12, 7, 2013 });
+	zp.AddVisa("Russia", { 11, 8, 2014 });
+	zp.AddPK("USA", { 12, 7, 2013 });
+	zp.AddPK("Thailand", { 11, 8, 2014 });
+	zp.AddPK("Germany", { 12, 7, 2013 });
+	zp.AddPK("England", { 11, 8, 2014 });
+	zp.AddPK("Norvegy", { 12, 7, 2013 });
+	zp.AddPK("Russia", { 11, 8, 2014 });
+	zp.Print();
 }
