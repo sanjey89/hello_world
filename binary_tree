@@ -2,308 +2,236 @@
 #include <string>
 using namespace std;
 
-struct Elem
+class DATA
 {
-	string violation;
-	Elem* next;
-	Elem* prev;
+public:
+	int day = 1;
+	int month = 1;
+	int year = 1900;
+public:
+	DATA(){};
+	DATA(int d, int m = 1, int y = 1900) :day(d), month(m), year(y){};
+	friend ostream& operator<<(ostream& os, const DATA& dt)
+	{
+		cout << dt.day << "." << dt.month << "." << dt.year;
+		return os;
+	}
 };
-
+template <class T>
+struct Elem{
+	T data;
+	Elem<T>* next;
+	Elem<T>* prev;
+};
+template <class T>
 class List
 {
-	Elem *Head, *Tail;
-	int length;
+private:
+	Elem<T>* head;
+	Elem<T>* tail;
+	int count;
 public:
-	List();
-	List(const List&);
-	~List();
-	int GetLength();
-	void AddTail(string n);
-	void AddHead(string n);
-	void Insert(int pos = 0);
-	void Del(int pos = 0);
-	void DelAll();
-	void Print();
-	void Print(int pos);
-	Elem* GetElem(int);
-	List & operator = (const List & L);
-	bool SearchString(string s);
+	List(){
+		head = tail = nullptr;
+		count = 0;
+	}
+	void AddElem(T data)
+	{
+		Elem<T>* temp = new Elem<T>;
+		temp->data = data;
+		if (head == nullptr)
+		{
+			head = tail = temp;
+			head->next = nullptr;
+			head->prev = nullptr;
+		}
+		else
+		{
+			temp->next = head;
+			head->prev = temp;
+			head = temp;
+			temp->prev = nullptr;
+		}
+		count++;
+	}
+	void AddTail(T data)
+	{
+		Elem<T>* temp = new Elem<T>;
+		if (head == nullptr)
+		{
+			head = temp;
+			tail = temp;
+			head->data = data;
+			head->next = nullptr;
+			head->prev = nullptr;
+			return;
+		}
+		temp->data = data;
+		temp->next = nullptr;
+		temp->prev = tail;
+		tail->next = temp;
+		tail = temp;
+		count++;
+	}
+	int GetCount() const
+	{
+		return count;
+	}
+	T& GetHead() const
+	{
+		return head->data;
+	}
+
+	T& GetTail() const
+	{
+		return tail->data;
+	}
+
+	bool RemoveHead()
+	{
+		if (head != nullptr && count > 1)
+		{
+			Elem<T>* temp = head;
+			head = head->next;
+			head->prev = nullptr;
+			delete temp;
+			count--;
+		}
+		else if (count == 1)
+		{
+			delete head;
+			head = nullptr;
+			tail = nullptr;
+			count--;
+		}
+		else return false;
+		return true;
+	}
+
+	bool RemoveTail()
+	{
+		if (head != nullptr && count > 1)
+		{
+			Elem<T>* temp = tail;
+			tail = tail->prev;
+			tail->next = nullptr;
+			delete temp;
+			count--;
+		}
+		else if (count == 1)
+		{
+			delete tail;
+			head = nullptr;
+			tail = nullptr;
+			count--;
+		}
+		else return false;
+		return true;
+	}
+	Elem<T>* GetElemAtIndex(unsigned index)
+	{
+		/*if (head == nullptr) return nullptr;
+		else
+		{*/
+		Elem<T>* current = head;
+		for (int i = 0; i < index; i++)
+		{
+			current = current->next;
+		}
+		return current;
+		/*}*/
+	}
+	bool RemoveAtIndex(int index)
+	{
+		Elem<T>* current = head;
+		if (index == 0)
+			return RemoveHead();
+		else if (index == count)
+			return RemoveTail();
+		else if (index > count) return false;
+		else
+		{
+			Elem<T>* temp = GetElemAtIndex(index);
+			(temp->next)->prev = temp->prev;
+			(temp->prev)->next = temp->next;
+			delete temp;
+		}
+	}
+	void Clear()
+	{
+
+		while (RemoveHead()){};
+	}
+	bool IsEmpty()
+	{
+		if (head == nullptr)
+			return true;
+		return false;
+	}
+	T& SearchAsIndex(int index)
+	{
+		Elem<T>* current = head;
+		for (int i = 0;; i++)
+		{
+			if (i == index)
+				return current->data;
+			current = current->next;
+		}
+	}
+	bool Contains(T s)
+	{
+		Elem<T>* current = head;
+		for (; current != 0;)
+		{
+			if (current->data == s) return true;
+			current = current->next;
+		}
+		return false;
+	}
+	void Print()
+	{
+		Elem<T>* current = head;
+		while (current != nullptr)
+		{
+			cout << current->data << " ";
+			current = current->next;
+		}
+	}
+	void PrintAdIndex(int index)
+	{
+		Elem<T>* current = head;
+		//	if (head = nullptr) return;
+		//	cout << current << endl;
+		for (int i = 0; i < index; i++)
+		{
+			current = current->next;
+		}
+		cout << current->data << " ";
+	}
+	void PrintRevers()
+	{
+		Elem<T>* current = tail;
+		while (current != nullptr)
+		{
+			cout << current->data << " ";
+			current = current->prev;
+		}
+	}
 };
-bool List::SearchString(string s)
+class CarInfo
 {
-	Elem* current = Head;
-	for (;current != 0;)
-	{
-		if (current->violation == s) return true;
-		current = current->next;
-	}
-	return false;
-}
-List::List()
-{
-	Head = Tail = NULL;
-	length = 0;
-}
-
-void List::AddHead(string n)
-{
-	Elem * temp = new Elem();
-	temp->prev = 0;
-	temp->violation = n;
-	temp->next = Head;
-
-	// если в списке уже есть элементы
-	if (Head != 0) Head->prev = temp;
-
-	// если элементов не было
-	if (length == 0) Head = Tail = temp;
-	else Head = temp;
-
-	length++;
-}
-
-void List::AddTail(string n)
-{
-	Elem * temp = new Elem();
-	temp->next = 0;
-	temp->violation = n;
-	temp->prev = Tail;
-
-	// если в списке уже есть элементы
-	if (Tail != 0) Tail->next = temp;
-
-	// если элементов не было
-	if (length == 0) Head = Tail = temp;
-	else Tail = temp;
-
-	length++;
-}
-
-// конструктор копирования
-List::List(const List & L)
-{
-	Head = Tail = NULL;
-	length = 0;
-
-	// голова списка, который копируется
-	Elem* temp = L.Head;
-
-	while (temp != 0)
-	{
-		AddTail(temp->violation);
-		temp = temp->next;
-	}
-}
-
-void List::Insert(int pos)
-{
-	if (pos == 0)
-	{
-		cout << "Input position: ";
-		cin >> pos;
-	}
-
-	if (pos < 1 || pos > length + 1)
-	{
-		cout << "Incorrect position !!!\n";
-		return;
-	}
-
-	if (pos == length + 1)
-	{
-		string data;
-		cout << "Input new data: ";
-		cin >> data;
-		AddTail(data);
-		return;
-	}
-	else if (pos == 1)
-	{
-		string data;
-		cout << "Input new data: ";
-		cin >> data;
-		AddHead(data);
-		return;
-	}
-
-	int i = 1;
-	Elem * Ins = Head;
-	while (i < pos)
-	{
-		Ins = Ins->next;
-		i++;
-	}
-
-	Elem * PrevIns = Ins->prev;
-
-	Elem * temp = new Elem();
-
-	cout << "Input new data: ";
-	cin >> temp->violation;
-
-	// настройка связей
-	if (PrevIns != 0 && length != 1)
-		PrevIns->next = temp;
-
-	temp->next = Ins;
-	temp->prev = PrevIns;
-	Ins->prev = temp;
-
-	length++;
-}
-
-void List::Del(int pos)
-{
-	if (pos == 0)
-	{
-		cout << "Input position: ";
-		cin >> pos;
-	}
-	if (pos < 1 || pos > length)
-	{
-		cout << "Incorrect position !!!\n";
-		return;
-	}
-
-	int i = 1;
-	Elem * Del = Head;
-	while (i < pos)
-	{
-		Del = Del->next;
-		i++;
-	}
-
-	Elem * PrevDel = Del->prev;
-	Elem * AfterDel = Del->next;
-
-	// если удаляется не голова
-	if (PrevDel != 0 && length != 1)
-		PrevDel->next = AfterDel;
-	// если удаляется не хвост
-	if (AfterDel != 0 && length != 1)
-		AfterDel->prev = PrevDel;
-
-	// удаление крайних элементов
-	if (pos == 1) Head = AfterDel;
-	if (pos == length) Tail = PrevDel;
-
-	delete Del;
-
-	length--;
-}
-
-void List::DelAll()
-{
-	while (length != 0) Del(1);
-}
-
-List::~List()
-{
-	DelAll();
-}
-
-void List::Print(int pos)
-{
-	if (pos < 1 || pos > length)
-	{
-		cout << "Incorrect position !!!\n";
-		return;
-	}
-
-	Elem * temp;
-
-	if (pos <= length / 2)
-	{
-		temp = Head;
-		int i = 1;
-		while (i < pos)
-		{
-			temp = temp->next;
-			i++;
-		}
-	}
-	else
-	{
-		temp = Tail;
-		int i = 1;
-		while (i <= length - pos)
-		{
-			temp = temp->prev;
-			i++;
-		}
-	}
-
-	cout << pos << " element: ";
-	cout << temp->violation << endl;
-}
-
-void List::Print()
-{
-	if (length != 0)
-	{
-		Elem * temp = Head;
-		cout << "( ";
-		while (temp->next != 0)
-		{
-			cout << temp->violation;
-			temp = temp->next;
-		}
-
-		cout << temp->violation << " )\n";
-	}
-}
-
-int List::GetLength()
-{
-	return length;
-}
-
-Elem * List::GetElem(int pos)
-{
-	Elem *temp = Head;
-
-	if (pos < 1 || pos > length)
-	{
-		cout << "Incorrect position !!!\n";
-		return 0;
-	}
-
-	int i = 1;
-	while (i < pos && temp != 0)
-	{
-		temp = temp->next;
-		i++;
-	}
-
-	if (temp == 0) return 0;
-	else return temp;
-}
-
-List & List::operator = (const List & L)
-{
-	// проверка на присвоение элемента самому себе
-	if (this == &L) return *this;
-
-	// удаление старого списка
-	this->~List(); // DelAll();
-
-	Elem* temp = L.Head;
-
-	while (temp != 0)
-	{
-		AddTail(temp->violation);
-		temp = temp->next;
-	}
-
-	return *this;
-}
-
-struct CarInfo
-{
+public:
 	string car_number;
-	List violations_list;
+	List<string> violations_list;
+	List<DATA> violations_data;
+	List<unsigned> penalty;
+	void AddViolation(string v, DATA d, unsigned p)
+	{
+		violations_list.AddTail(v);
+		violations_data.AddTail(d);
+		penalty.AddTail(p);
+	}
 };
-
 struct Node // one element of the tree
 {
 	CarInfo info; // useful data
@@ -314,11 +242,18 @@ struct Node // one element of the tree
 
 	void ShowNode()
 	{
-		cout << info.car_number << " - ";
-		info.violations_list.Print();
+		cout << info.car_number << ":\n";
+		int count = info.violations_list.GetCount();
+		for (int i = 0; i < count; i++)
+		{
+			info.violations_data.PrintAdIndex(i);
+			cout << " ";
+			info.violations_list.PrintAdIndex(i);
+			info.penalty.PrintAdIndex(i);
+			cout << " hrn\n";
+		}
 	}
 };
-
 class BinaryTree
 {
 	Node* root;
@@ -347,6 +282,7 @@ private:
 		{
 			ShowTree(elem->left);
 			elem->ShowNode();
+			//cout << endl;
 			ShowTree(elem->right);
 		}
 	}
@@ -355,10 +291,10 @@ private:
 		if (elem != 0)
 		{
 			ShowIfViolation(elem->left, violation);
-			if (elem->info.violations_list.SearchString(violation))
+			if (elem->info.violations_list.Contains(violation))
 				elem->ShowNode();
 			ShowIfViolation(elem->right, violation);
-				
+
 		}
 	}
 
@@ -423,7 +359,7 @@ public:
 		}
 	}
 
-	Node* FindNode(CarInfo value)
+	Node* FindNode(string value)
 	{
 		if (IsEmpty())
 			return 0;
@@ -432,14 +368,14 @@ public:
 			Node* f = root;
 			while (true)
 			{
-				if (value.car_number < f->info.car_number)
+				if (value < f->info.car_number)
 				{
 					if (f->left != 0)
 						f = f->left;
 					else
 						break;
 				}
-				else if (value.car_number > f->info.car_number)
+				else if (value > f->info.car_number)
 				{
 					if (f->right != 0)
 						f = f->right;
@@ -452,10 +388,10 @@ public:
 			return 0;
 		}
 	}
-	
+
 	void AddNode(CarInfo value)
 	{
-		if (FindNode(value))
+		if (FindNode(value.car_number))
 			return;
 		Node* n = new Node;
 		n->right = n->left = 0;
@@ -485,6 +421,23 @@ public:
 		}
 	}
 
+	void AddViolationByNumber(string n, string v, DATA d, int p)
+	{
+		Node* temp;
+		if (!FindNode(n)) return;
+		temp = FindNode(n);
+		temp->info.violations_list.AddElem(v);
+		temp->info.violations_data.AddElem(d);
+		temp->info.penalty.AddElem(p);
+	}
+
+	void AddNodeByCarNumber(string n)
+	{
+		CarInfo* temp;
+		temp = new CarInfo;
+		temp->car_number = n;
+		AddNode(*temp);
+	}
 	BinaryTree& operator = (const BinaryTree& obj)
 	{
 		if (!IsEmpty())
@@ -513,7 +466,7 @@ public:
 			Copy(elem->right);
 	}
 
-	void DeleteNode(CarInfo value)
+	void DeleteNode(string value)
 	{
 		Node* d = FindNode(value);
 		if (d == 0)
@@ -593,19 +546,20 @@ public:
 		}
 	}
 };
-
 void main()
 {
 	BinaryTree bt;
-	CarInfo ci;
-	ci.car_number = "222-333-BH";
-	ci.violations_list.AddTail("proezd na krasnij");
-	bt.AddNode(ci);
-	CarInfo ci2;
-	ci2.car_number = "222-333-BH2";
-	ci2.violations_list.AddTail("net aptechki");
-	bt.AddNode(ci2);
+	//CarInfo ci;
+	bt.AddNodeByCarNumber("BH-1234");
+	bt.AddNodeByCarNumber("BH-1235");
+	bt.AddNodeByCarNumber("BH-1236");
+	bt.AddViolationByNumber("BH-1234", "proezd na krasnij", { 10, 6, 2015 }, 500);
+	bt.AddViolationByNumber("BH-1234", "ne pristegnyt", { 12, 5	, 2015 }, 300);
+	bt.AddViolationByNumber("BH-1235", "proezd na krasnij", { 10, 6, 2015 }, 500);
+	bt.AddViolationByNumber("BH-1235", "ne pristegnyt", { 12, 5, 2015 }, 300);
+	bt.AddViolationByNumber("BH-1236", "proezd na krasnij", { 10, 6, 2015 }, 500);
+	bt.AddViolationByNumber("BH-1236", "ne pristegnyt", { 12, 5, 2015 }, 300);
 	bt.ShowTree();
 	//показать по правонарушению
-	bt.ShowIfViolation("net aptechki");
+	//bt.ShowIfViolation("net aptechki");*/
 }
