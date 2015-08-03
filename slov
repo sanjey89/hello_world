@@ -1,0 +1,442 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <class D, class K>
+struct Node // one element of the tree
+{
+	D data;
+	K key;
+
+	Node<D, K>* parent;
+	Node<D, K>* right;
+	Node<D, K>* left;
+
+	void ShowNode()
+	{
+			cout << key;
+			cout << " - ";
+			cout << data;
+			cout << endl;
+	}
+};
+
+template <class D, class K>
+class BinaryTree
+{
+	Node<D, K>* root;
+	// int count;
+
+public:
+	BinaryTree()
+	{
+		root = 0;
+	}
+
+	bool IsEmpty()
+	{
+		return root == 0;
+	}
+
+	~BinaryTree()
+	{
+		Clear();
+	}
+
+private:
+	void ShowTree(Node<D, K>* elem)
+	{
+		if (elem != 0)
+		{
+			ShowTree(elem->left);
+			elem->ShowNode();
+			//cout << endl;
+			ShowTree(elem->right);
+		}
+	}
+	void ShowIfViolation(Node<D, K>* elem, string violation)
+	{
+		if (elem != 0)
+		{
+			ShowIfViolation(elem->left, violation);
+			if (elem->info.violations_list.Contains(violation))
+				elem->ShowNode();
+			ShowIfViolation(elem->right, violation);
+
+		}
+	}
+
+public:
+	void ShowTree()
+	{
+		cout << "\n\n";
+		ShowTree(root);
+		cout << "\n\n";
+	}
+	void ShowIfViolation(string violation)
+	{
+		cout << "\n\n";
+		ShowIfViolation(root, violation);
+		cout << "\n\n";
+	}
+
+	Node<D, K>* GetRoot()
+	{
+		return root;
+	}
+
+private:
+	int GetCount(Node<D, K>* elem, int count)
+	{
+		if (elem != 0)
+		{
+			count = GetCount(elem->left, count);
+			count++;
+			count = GetCount(elem->right, count);
+		}
+		return count;
+	}
+
+public:
+	int GetCount()
+	{
+		int count = 0;
+		count = GetCount(root, count);
+		return count;
+	}
+
+private:
+	void Clear(Node<D, K>* elem)
+	{
+		if (elem != 0)
+		{
+			Clear(elem->left);
+			Clear(elem->right);
+			delete elem;
+			elem = 0;
+		}
+	}
+
+public:
+	void Clear()
+	{
+		if (!IsEmpty())
+		{
+			Clear(root);
+			root = 0;
+		}
+	}
+
+	Node<D,K>* FindNode(K key)
+	{
+		if (IsEmpty())
+			return 0;
+		else
+		{
+			Node<D, K>* f = root;
+			while (true)
+			{
+				if (key < f->key)
+				{
+					if (f->left != 0)
+						f = f->left;
+					else
+						break;
+				}
+				else if (key > f->key)
+				{
+					if (f->right != 0)
+						f = f->right;
+					else
+						break;
+				}
+				else
+					return f;
+			}
+			return 0;
+		}
+	}
+
+	void AddNode(D data, K key)
+	{
+		if (FindNode(key))
+			return;
+		Node<D, K>* n = new Node<D,K>;
+		n->right = n->left = 0;
+		n->key = key;
+		n->data = data;
+		Node<D, K>* parent = 0;
+		if (IsEmpty())
+		{
+			root = n;
+			root->parent = parent;
+		}
+		else
+		{
+			Node<D, K>*p = root;
+			while (p != 0)
+			{
+				parent = p;
+				if (n->key > p->key)
+					p = p->right;
+				else
+					p = p->left;
+			}
+			if (n->key < parent->key)
+				parent->left = n;
+			else
+				parent->right = n;
+			n->parent = parent;
+		}
+	}
+
+	void AddSlov(string s)
+	{
+		Node<string, string>* temp = new Node<string, string>;
+	}
+
+	BinaryTree& operator = (const BinaryTree& obj)
+	{
+		if (!IsEmpty())
+			Clear();
+		AddNode(obj.root->info);
+		Copy(obj.root);
+		return *this;
+	}
+
+	BinaryTree(const BinaryTree& obj)
+	{
+		root = 0;
+		AddNode(obj.root->info);
+		Copy(obj.root);
+	}
+
+	void Copy(Node<D, K>* elem)
+	{
+		if (elem->left != 0)
+			AddNode(elem->left->info);
+		if (elem->right != 0)
+			AddNode(elem->right->info);
+		if (elem->left != 0)
+			Copy(elem->left);
+		if (elem->right != 0)
+			Copy(elem->right);
+	}
+
+	void DeleteNode(string value)
+	{
+		Node<D, K>* d = FindNode(value);
+		if (d == 0)
+			return;
+		Node<D, K>* parent = d->parent;
+		if (d == root && GetCount() == 1)
+		{
+			Clear();
+			return;
+		}
+		if (d->left == 0 && d->right == 0)
+		{
+			if (parent->left == d)
+				parent->left = 0;
+			else
+				parent->right = 0;
+			delete d;
+			return;
+		}
+		if (d->left == 0 && d->right != 0)
+		{
+			if (parent->left == d)
+			{
+				parent->left = d->right;
+			}
+			else
+			{
+				parent->right = d->right;
+
+			}
+			d->right->parent = parent;
+			delete d;
+			return;
+		}
+		if (d->left != 0 && d->right == 0)
+		{
+			if (parent->left == d)
+			{
+				parent->left = d->left;
+			}
+			else
+			{
+				parent->right = d->left;
+
+			}
+			d->left->parent = parent;
+			delete d;
+			return;
+		}
+		if (d->left != 0 && d->right != 0)
+		{
+			Node<D, K>*r = d->right;
+			if (r->right == 0 && r->left == 0)
+			{
+				d->info = r->info;
+				d->right = 0;
+				delete r;
+			}
+			else if (r->left != 0)
+			{
+				Node<D, K>*p = r->left;
+				while (p->left != 0)
+					p = p->left;
+				d->info = p->info;
+				if (p->right == 0)
+					p->parent->left = 0;
+				else
+					p->parent->left = p->right;
+				delete p;
+			}
+			else
+			{
+				d->info = r->info;
+				d->right = r->right;
+				delete r;
+			}
+		}
+	}
+};
+
+int main(void)
+{
+	setlocale(LC_ALL, "RUS");
+	BinaryTree<int, int> bt;
+	bt.AddNode(10, 15);
+	bt.AddNode(10, 16);
+	bt.AddNode(12, 17);
+	cout << bt.GetCount();
+	bt.ShowTree();
+
+	BinaryTree<string, string> bt_s;
+	string s = "Vasya";
+	string s1 = "Petya";
+	bt_s.AddNode(s, s1);
+	bt_s.ShowTree();
+
+	FILE* f;
+	f = fopen("slov.txt", "r");
+
+	/*if ((fp = fopen("slov.txt", "w")) == NULL) {
+		printf("Ошибка при открытии файла.\n");
+		exit(1);
+	}*/
+	/*char* data; //указатель на динамическую память хранящую данные
+	char* key; //указатель на динамческую память хранящую ключ
+	char* data_key = new char[999]; //указатель на динамическую память 
+	char* ptr; //указатель для вычисления длинны до %*/
+	//хранящую строку с ключем и данными
+	//int data_key_lenth = 0; //размер общей строки (ключа и данных)
+	//int key_lenth = 0; //размер ключа
+	//fgets(data_key, 998, fp);//записываем строку
+	//cout << data_key;
+	//data_key_lenth = strlen(data_key); //узнаем длинну
+	//cout << endl << data_key_lenth;
+	////узнаем длинну до %
+	//ptr = data_key;
+	//for (; *ptr != '%' && *ptr != '\n';)
+	//{
+	//	ptr++;
+	//	key_lenth++;
+	//}
+	//key_lenth++;
+	//cout << key_lenth;
+	//key = new char[key_lenth + 1];
+	//strncpy(key, data_key, key_lenth);
+	//cout << key;
+	//cout << endl;
+	//ptr = key;
+	//cout << endl;
+	//for (;;)
+	//{
+	//	if (*ptr == '%')
+	//	{
+	//		*ptr = '\0';
+	//		break;
+	//	}
+	//	ptr++;
+	//}
+	//cout << key;
+	//data = strchr(data_key, '%');
+	//ptr = data;
+	//ptr++;
+	//ptr++;
+	//int data_cpy = data_key_lenth - key_lenth + 1;
+	//data = new char[data_cpy];
+	//strcpy(data, ptr);
+	//cout << endl << data;
+	//bt_s.AddNode(data, key);
+	//bt_s.ShowTree();
+	/*fgets(temp, 255, fp);
+	strcpy(temp2, strchr(temp, '%'));
+	cout << temp2;*/	
+	/*fgets(test, 255, fp);
+	fgets(test, 255, fp);
+	cout << test;*/
+	/*cout << fgets(fp) << endl;
+	cout << fgets(fp) << endl;*/
+	char* key_data = new char[999];
+	char* key = nullptr;
+	char* data = nullptr;
+	int key_lenth = 0;
+	int data_lenth = 0;
+	char* ptr = nullptr;
+	int p = 0;
+	for (; fgets(key_data, 998, f) != nullptr;)
+	{
+		/*p++;
+		if (p == 100) break;*/
+		ptr = key_data;
+		bool k = true;
+		for (; *ptr != '\n';)
+		{
+			if (k)
+			{
+				if (*ptr == '%')
+				{
+					k = false;
+					ptr++;
+					continue;
+				}
+				key_lenth++;
+			}
+			else
+			{
+				data_lenth++;
+			}
+			ptr++;
+		}
+		key = new char[key_lenth + 1];
+		data = new char[data_lenth + 1];
+		strncpy(key, key_data, key_lenth + 1);
+		ptr = key;
+		for (;;)
+		{
+			if (*ptr == '%')
+			{
+				*ptr = '\0';
+				break;
+			}
+			ptr++;
+		}
+		ptr = strchr(key_data, '%');
+		ptr++;
+		strcpy(data, ptr);
+		ptr = nullptr;
+		bt_s.AddNode(data, key);
+		data = nullptr;
+		key = nullptr;	
+		key_lenth = 0;
+		data_lenth = 0;
+	}
+	//bt_s.ShowTree();
+	cout << bt_s.GetCount() << endl;
+	bt_s.FindNode("axle ")->ShowNode();
+}
