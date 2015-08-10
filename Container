@@ -1,37 +1,927 @@
-/*3. Создать базовый не-шаблонный класс Container (контейнер/коллекция), который содержит поле count 
-(количесто элементов в коллекции), а также методы: GetCount, Add, Remove, Print, Search, Replace и Sort.
-Ваши уже готовые не-шаблонные классы Array, Vector, SLL, DLL и BinaryTree сделать наследниками класса Container.
+/*Создать базовый не-шаблонный класс Container (контейнер/коллекция), 
+который содержит поле count (количесто элементов в коллекции), а также методы: 
+GetCount, Add, Remove, Print, Search, Replace и Sort.
+Ваши уже готовые не-шаблонные классы Array, Vector, dll, DLL и BinaryTree 
+сделать наследниками класса Container.
 Переопределить методы в каждом классе-контейнере. Протестировать написанные классы.*/
+
 #include <iostream>
-#include <string>
 using namespace std;
 
 class Container
 {
 protected:
-	int count;
+	unsigned count;
+public:
+	Container():count(0){}
+	//done
+	virtual unsigned GetCount()
+	{
+		return count;
+	}
+	//done
+	virtual void Add(int elem)
+	{
+		count++;
+	}
+	//done
+	virtual bool Remove(int elem)
+	{
+		if (count != 0)
+		{
+			count--;
+			cout << "Remove Elem\n";
+			return true;
+		}
+		return false;
+	}
+	//done
+	virtual void Print()
+	{
+		cout << "Print container\n";
+	}
+	//done
+	virtual bool Search(int elem)
+	{
+		cout << "Search element\n";
+		if (count != 0)
+		return true;
+		return false;
+	}
+	//done
+	virtual bool Replace(int elem, int replace)
+	{
+		if (count != 0)
+		{
+			cout << "Replace element\n";
+			return true;
+		}
+		return false;
+	}
+
+	virtual void Sort()
+	{
+		cout << "Sort element\n";
+	}
+};
+
+struct Elem{
+	int data;
+	Elem* next;
+	Elem* prev;
+};
+
+struct Node // one element of the tree
+{
+	int data; // useful data
+
+	Node* parent;
+	Node* right;
+	Node* left;
+
+	void ShowNode()
+	{
+		cout << data << " ";
+	}
+};
+class BinaryTree: public Container
+{
+	Node* root;
+	// int count;
+
+public:
+	BinaryTree()
+	{
+		root = 0;
+	}
+
+	bool IsEmpty()
+	{
+		return root == 0;
+	}
+
+	~BinaryTree()
+	{
+		Clear();
+	}
+
+private:
+	void ShowTree(Node* elem)
+	{
+		if (elem != 0)
+		{
+			ShowTree(elem->left);
+			elem->ShowNode();
+			//cout << endl;
+			ShowTree(elem->right);
+		}
+	}
+
+public:
+	void Print()
+	{
+		//cout << "\n\n";
+		ShowTree(root);
+		cout << "\n";
+	}
+
+	Node* GetRoot()
+	{
+		return root;
+	}
+
+public:
+	unsigned GetCount()
+	{
+		return count;
+	}
+
+private:
+	void Clear(Node* elem)
+	{
+		if (elem != 0)
+		{
+			Clear(elem->left);
+			Clear(elem->right);
+			delete elem;
+			elem = 0;
+		}
+	}
+
+public:
+	void Clear()
+	{
+		if (!IsEmpty())
+		{
+			Clear(root);
+			root = 0;
+		}
+	}
+
+	Node* FindNode(int value)
+	{
+		if (IsEmpty())
+			return nullptr;
+		else
+		{
+			Node* f = root;
+			while (true)
+			{
+				if (value < f->data)
+				{
+					if (f->left != 0)
+						f = f->left;
+					else
+						break;
+				}
+				else if (value > f->data)
+				{
+					if (f->right != 0)
+						f = f->right;
+					else
+						break;
+				}
+				else
+					return f;
+			}
+			return nullptr;
+		}
+	}
+	
+	bool Search(int value)
+	{
+		Node* temp = FindNode(value);
+		if (temp != nullptr)
+			return true;
+		return false;
+	}
+	
+	bool Replace(int elem, int replace)
+	{
+		cout << "Not supported\n";
+		return false;
+	}
+	void Sort()
+	{
+		cout << "Not supported\n";
+	}
+
+	void Add(int value)
+	{
+		Node* n = new Node;
+		n->right = n->left = 0;
+		n->data = value;
+		Node* parent = 0;
+		if (IsEmpty())
+		{
+			root = n;
+			root->parent = parent;
+		}
+		else
+		{
+			Node*p = root;
+			while (p != 0)
+			{
+				parent = p;
+				if (n->data>p->data)
+					p = p->right;
+				else
+					p = p->left;
+			}
+			if (n->data<parent->data)
+				parent->left = n;
+			else
+				parent->right = n;
+			n->parent = parent;
+		}
+		count++;
+	}
+
+	BinaryTree& operator = (const BinaryTree& obj)
+	{
+		if (!IsEmpty())
+			Clear();
+		Add(obj.root->data);
+		Copy(obj.root);
+		return *this;
+	}
+
+	BinaryTree(const BinaryTree& obj)
+	{
+		root = 0;
+		Add(obj.root->data);
+		Copy(obj.root);
+	}
+
+	void Copy(Node* elem)
+	{
+		if (elem->left != 0)
+			Add(elem->left->data);
+		if (elem->right != 0)
+			Add(elem->right->data);
+		if (elem->left != 0)
+			Copy(elem->left);
+		if (elem->right != 0)
+			Copy(elem->right);
+	}
+
+	bool Remove(int value)
+	{
+		Node* d = FindNode(value);
+		if (d == 0)
+			return false;
+		Node* parent = d->parent;
+		if (d == root && GetCount() == 1)
+		{
+			Clear();
+			return true;
+		}
+		if (d->left == 0 && d->right == 0)
+		{
+			if (parent->left == d)
+				parent->left = 0;
+			else
+				parent->right = 0;
+			delete d;
+			return true;
+		}
+		if (d->left == 0 && d->right != 0)
+		{
+			if (parent->left == d)
+			{
+				parent->left = d->right;
+			}
+			else
+			{
+				parent->right = d->right;
+
+			}
+			d->right->parent = parent;
+			delete d;
+			return true;
+		}
+		if (d->left != 0 && d->right == 0)
+		{
+			if (parent->left == d)
+			{
+				parent->left = d->left;
+			}
+			else
+			{
+				parent->right = d->left;
+
+			}
+			d->left->parent = parent;
+			delete d;
+			return true;
+		}
+		if (d->left != 0 && d->right != 0)
+		{
+			Node*r = d->right;
+			if (r->right == 0 && r->left == 0)
+			{
+				d->data = r->data;
+				d->right = 0;
+				delete r;
+				return true;
+			}
+			else if (r->left != 0)
+			{
+				Node*p = r->left;
+				while (p->left != 0)
+					p = p->left;
+				d->data = p->data;
+				if (p->right == 0)
+					p->parent->left = 0;
+				else
+					p->parent->left = p->right;
+				delete p;
+				return true;
+			}
+			else
+			{
+				d->data = r->data;
+				d->right = r->right;
+				delete r;
+				return true;
+			}
+		}
+	}
+};
+
+class MyVector: public Container
+{
+	int* data;
+public:
+	// конструкторы
+	MyVector() : data(nullptr) { count = 0; }
+	explicit MyVector(unsigned int initCount); // MyVector mv = 5; - запрещено, MyVector mv = MyVector(5); - разрешено!
+	MyVector(const MyVector& original) : MyVector(original.data, original.count){} // делегирование
+	MyVector(int array[], unsigned int arraySize);
+
+	~MyVector() { Clear(); } // деструктор
+
+	void Clear(); // очистка вектора
+
+	MyVector& operator=(const MyVector& v); // присваивание
+
+	// работа с размером вектора
+	unsigned GetCount() { return count; }
+	bool IsEmpty() const { return count == 0; }
+	bool operator!() const { return IsEmpty(); }
+
+	const int& operator[](unsigned int index) const; // доступ к элементам (просмотр!)
+
+	// добавление и удаление элементов
+	void Add(int number);
+	void Insert(unsigned int index, int number);
+	void RemoveInd(unsigned int index);
+	bool Remove(int elem);
+	bool Replace(int elem, int replace);
+
+	void Sort();
+	bool Search(int elem)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			if (data[i] == elem)
+				return true;
+		}
+		return false;
+	}
+	void Print();
+};
+
+MyVector::MyVector(unsigned int initCount)
+{
+	data = initCount ? new int[initCount] : nullptr;
+	count = initCount;
+}
+
+MyVector::MyVector(int array[], unsigned int arraySize)
+{
+	if (arraySize == 0)
+		data = nullptr;
+	else
+	{
+		// выделяем память и копируем элементы
+		data = new int[arraySize];
+		for (unsigned int i = 0; i < arraySize; i++)
+			data[i] = array[i];
+	}
+	count = arraySize;
+}
+
+void MyVector::Clear()
+{
+	if (count)
+	{
+		delete[] data;
+		data = nullptr;
+		count = 0;
+	}
+}
+
+MyVector& MyVector::operator=(const MyVector& original)
+{
+	// проверка на самоприсваивание
+	if (this == &original) return *this;
+
+	if (original.count == 0)
+	{
+		delete[] data;
+		data = nullptr;
+	}
+	else
+	{
+		// выделяем память и копируем элементы
+		int* temp = new int[original.count];
+		for (unsigned int i = 0; i < original.count; i++)
+			temp[i] = original.data[i];
+		// удаляем старый массив
+		delete[] data;
+		data = temp;
+	}
+	count = original.count;
+
+	return *this;
+}
+
+const int& MyVector::operator[](unsigned int index) const
+{
+	if (index >= count) throw "Incorrect index!"; // генерация исключения!
+	return data[index];
+}
+
+void MyVector::Add(int number)
+{
+	if (count == 0)
+	{
+		data = new int;
+		*data = number;
+	}
+	else
+	{
+		// выделяем память и копируем элементы
+		int* temp = new int[count + 1];
+		for (unsigned int i = 0; i < count; i++)
+			temp[i] = data[i];
+		// добавляем новый элемент
+		temp[count] = number;
+		// удаляем старый массив
+		delete[] data;
+		data = temp;
+	}
+	count++;
+}
+
+void MyVector::Insert(unsigned int index, int number)
+{
+	if (index > count) index = count;
+
+	if (count == 0)
+	{
+		data = new int;
+		*data = number;
+	}
+	else
+	{
+		// выделяем память и копируем элементы
+		int* temp = new int[count + 1];
+		for (unsigned int i = 0; i < count; i++)
+		if (i < index) temp[i] = data[i];
+		else if (i >= index) temp[i + 1] = data[i];
+		// вставляем новый элемент
+		temp[index] = number;
+		// удаляем старый массив
+		delete[] data;
+		data = temp;
+	}
+	count++;
+}
+
+void MyVector::RemoveInd(unsigned int index)
+{
+	if (index >= count) throw "Incorrect index!";
+
+	if (count == 1)
+	{
+		delete[] data;
+		data = nullptr;
+	}
+	else
+	{
+		// выделяем память и копируем элементы
+		int *temp = new int[count - 1];
+		for (unsigned int i = 0; i < count; i++)
+		if (i < index) temp[i] = data[i];
+		else if (i > index) temp[i - 1] = data[i];
+		// удаляем старый массив
+		delete[] data;
+		data = temp;
+	}
+	count--;
+}
+
+bool MyVector::Remove(int elem)
+{
+	for (int i = 0; i < count; i++)
+	{
+		if (data[i] == elem)
+		{
+			RemoveInd(i);
+			return true;
+		}
+	}
+	return false;
+}
+
+void MyVector::Print() 
+{
+	if (IsEmpty()) cout << "Vector is empty!";
+	else
+	{
+		for (unsigned int i = 0; i < count; i++)
+		{
+			cout << data[i];
+			if (i < count - 1) cout << ",  ";
+			else cout << ".";
+		}
+	}
+	cout << "\n";
+}
+
+bool MyVector::Replace(int elem, int replace)
+{
+	for (int i = 0; i < count; i++)
+	{
+		if (data[i] == elem)
+		{
+			data[i] = replace;
+			return true;
+		}
+	}
+	return false;
+}
+
+void MyVector::Sort()
+{
+	if (count == 0) return;
+	for (int i = 1; i < count; i++)
+	for (int j = i; j>0 && data[j - 1] > data[j]; j--)
+	{
+		swap(data[j - 1], data[j]);
+	}
+}
+
+class SLL: public Container
+{
+public:
+	struct Element
+	{
+		int data;
+		Element* next;
+	};
+
+private:
+	Element* head; // начало
+	Element* tail; // конец
+	int count;     // необязательное поле
+	void quickSort(int arr[], int left, int right) {
+		int i = left, j = right;
+		int tmp;
+		int pivot = arr[(left + right) / 2];
+
+		/* partition */
+		while (i <= j) {
+			while (arr[i] < pivot)
+				i++;
+			while (arr[j] > pivot)
+				j--;
+			if (i <= j) {
+				tmp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = tmp;
+				i++;
+				j--;
+			}
+		};
+
+		/* recursion */
+		if (left < j)
+			quickSort(arr, left, j);
+		if (i < right)
+			quickSort(arr, i, right);
+
+	}
+public:
+	SLL()
+	{
+		head = tail = nullptr;
+		count = 0;
+	}
+	SLL(SLL& other)
+	{
+		operator=(other);
+	}
+	void operator=(SLL& other)
+	{
+		if (head != nullptr) Clear();
+		count = 0;
+		head = tail = nullptr;
+		Element* current = other.head;
+		for (int i = 0; i < other.count; i++)
+		{
+			Add(current->data);
+			current = current->next;
+		}
+	}
+	int IndexOf(int value)
+	{
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (value == current->data) return i;
+			current = current->next;
+		}
+		return -1;
+	}
+	int LastIndexOf(int value)
+	{
+		Element* current = head;
+		int k = -1;
+		for (int i = 0; i < count; i++)
+		{
+			if (value == current->data)
+				k = i;
+			current = current->next;
+		}
+		return k;
+	}
+	void Insert(int value, int pos)
+	{
+		if (head == nullptr)
+			Add(value);
+		else {
+			count++;
+			Element* temp = new Element;
+			temp->data = value;
+			temp->next = GetElementAt(pos);
+			if (pos != 0)
+				GetElementAt(pos - 1)->next = temp;
+			else
+				head = temp;
+		}
+	}
+	void Reverse() {
+		SLL temp;
+		for (int i = 0; i < count; i++)
+			temp.Add(GetElementAt(count - i - 1)->data);
+		*this = temp;
+	}
+	void Sort() {
+		int * mas = this->ToArray();
+		quickSort(mas, 0, this->count - 1);
+		SLL temp;
+		for (int i = 0; i < count; i++)
+			temp.Add(mas[i]);
+		*this = temp;
+	}
+
+	int* ToArray() {
+		int* mas = new int[count];
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			mas[i] = current->data;
+			current = current->next;
+		}
+		return mas;
+	}
+	bool Remove(int number)
+	{
+		int i = IndexOf(number);
+		if (i == 0)
+		{
+			RemoveHead();
+			return true;
+		}
+		else if (i == -1)
+			return false;
+		else
+		{
+			Element* delete_el;
+			delete_el = GetElementAt(i);
+			count--;
+			GetElementAt(i - 1)->next = GetElementAt(i)->next;
+			delete delete_el;
+			return true;
+		}
+	}
+	void RemoveAll(int number)
+	{
+		for (;;)
+		{
+			if (!Contains(number))
+				return;
+			Remove(number);
+		}
+	}
+	void InsertRange(int mass[], int size, int pos)
+	{
+		for (int i = 0; i < size; i++)
+			Insert(mass[i], pos + i);
+	}
+	bool operator==(const SLL& other)
+	{
+		if (count != other.count) return false;
+		Element* current_other = other.head;
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (current->data != current_other->data)
+				return false;
+			current = current->next;
+			current_other = current_other->next;
+		}
+		return true;
+	}
+	void operator<<(int value)
+	{
+		int k = 0;
+		Element* temp = head;
+		while (k != value)
+		{
+			if (temp == nullptr) break;
+			cout << temp->data << " ";
+			temp = temp->next;
+			k++;
+		}
+	}
+	Element& operator[](int pos)
+	{
+		Element* current = head;
+		for (int i = 0; i < pos; i++)
+		{
+			if (current == nullptr) break;
+			current = current->next;
+		}
+		if (current == nullptr)
+			return *head;
+		else
+			return *current;
+	}
+	Element* GetElementAt(int index)
+	{
+		Element* temp = &(*this)[index];
+
+		return temp;
+	}
+	void RemoveAt(int index) {
+		if (index == 0) RemoveHead();
+		else {
+			Element* temp = GetElementAt(index); // 6 7 
+			if (index == count - 1)
+				RemoveTail();
+			else {
+				GetElementAt(index - 1)->next = GetElementAt(index + 1);
+				delete temp;
+				count--;
+			}
+		}
+
+	}
+	void RemoveTail()
+	{
+		count--;
+		delete tail;
+		tail = GetElementAt(count - 1);
+		tail->next = nullptr;
+	}
+	// добавляет число в конец списка (метод входит в стандартный интерфейс)
+	void Add(int data)
+	{
+		Element* temp = new Element();
+		temp->data = data;
+		temp->next = nullptr;
+		if (head == nullptr)
+		{
+			head = tail = temp;
+		}
+		else
+		{
+			tail->next = temp;
+			tail = temp;
+		}
+		count++;
+	}
+	bool Equals(const SLL& other)
+	{
+		return operator==(other);
+	}
+	bool Contains(int value)
+	{
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (value == current->data)
+				return true;
+			current = current->next;
+		}
+		return false;
+	}
+	void AddRange(int mas[], int size)
+	{
+		for (int i = 0; i < size; i++)
+			Add(mas[i]);
+	}
+	bool Search(int elem)
+	{
+		Element* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (current->data == elem)
+				return true;
+			current = current->next;
+		}
+		return false;
+	}
+
+	// (метод не входит в стандартный интерфейс)
+	void RemoveHead()
+	{
+		Element* temp = head;
+		head = head->next;
+		delete temp;
+		count--;
+	}
+
+	// удаляет все элементы списка (метод входит в стандартный интерфейс)
+	void Clear()
+	{
+		while (head != nullptr)
+			RemoveHead();
+	}
+
+	// обязательный метод в С++
+	~SLL()
+	{
+		Clear();
+	}
+
+	// (метод не входит в стандартный интерфейс)
+	void Print()
+	{
+		Element* temp = head;
+		while (temp != nullptr)
+		{
+			cout << temp->data << " ";
+			temp = temp->next;
+		}
+	}
+
+	// (метод не входит в стандартный интерфейс)
+	unsigned GetCount()
+	{
+		return count;
+	}
+
+	// тестовый метод, демонстирующий возможность работы со структурой Element за пределами класса
+	Element GetHead()
+	{
+		if (head != nullptr) return *head;
+		else throw "Oops!";
+	}
+	bool Replace(int data, int replace)
+	{
+		if (Search(data))
+		{
+			int ind = IndexOf(data);
+			Element* temp = GetElementAt(ind);
+			temp->data = replace;
+			return true;
+		}
+		else return false;
+	}
+};
+
+class DLL: public Container
+{
+private:
 	struct Elem{
 		int data;
 		Elem* next;
 		Elem* prev;
 	};
-public:
-	int GetCount()
-	{
-		  return count;
-	}
-};
-class List:public Container
-{
-private:
 	Elem* head;
 	Elem* tail;
+	int count;
 public:
-	List(){
+	DLL(){
 		head = tail = nullptr;
 		count = 0;
 	}
-	void AddElem(int data)
+	void Add(int data)
 	{
 		Elem* temp = new Elem;
 		temp->data = data;
@@ -69,7 +959,7 @@ public:
 		tail = temp;
 		count++;
 	}
-	int GetCount() const
+	unsigned GetCount() const
 	{
 		return count;
 	}
@@ -151,7 +1041,34 @@ public:
 			(temp->next)->prev = temp->prev;
 			(temp->prev)->next = temp->next;
 			delete temp;
+			return true;
 		}
+	}
+	int ElemIndex(int elem)
+	{
+		Elem* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (current->data == elem)
+				return i;
+			current = current->next;
+		}
+		return -1;
+	}
+	bool Remove(int elem)
+	{
+		if (Search(elem))
+		{
+			int ind = ElemIndex(elem);
+			if (ind == -1) return false;
+			else
+			{
+				RemoveAtIndex(ind);
+				count--;
+				return true;
+			}
+		}
+		else return false;
 	}
 	void Clear()
 	{
@@ -174,6 +1091,17 @@ public:
 			current = current->next;
 		}
 	}
+	bool Search(int elem)
+	{
+		Elem* current = head;
+		for (int i = 0; i < count; i++)
+		{
+			if (current->data == elem)
+				return true;
+			current = current->next;
+		}
+		return false;
+	}
 	void Print()
 	{
 		Elem* current = head;
@@ -192,4 +1120,91 @@ public:
 			current = current->prev;
 		}
 	}
+	bool Replace(int data, int replace)
+	{
+		if (Search(data))
+		{
+			int ind = ElemIndex(data);
+			Elem* temp = GetElemAtIndex(ind);
+			temp->data = replace;
+			return true;
+		}
+		else return false;
+	}
+	void Sort()
+	{
+		if (GetCount() == 0) return;
+		Elem* temp = head;
+		Elem* current = temp->next;
+		for (int i = 1; i < count; i++)
+		for (int j = i; j>0 && GetElemAtIndex(j - 1)->data > GetElemAtIndex(j)->data; j--)
+		{
+			swap(GetElemAtIndex(j - 1)->data, GetElemAtIndex(j)->data);
+		}
+	}
 };
+
+void main()
+{
+	Container* vector = new MyVector();
+	for (int i = 20; i < 30; i++)
+	vector->Add(i);
+	cout << vector->Replace(28, 111) << endl;
+	vector->Remove(25);
+	vector->Print();
+	cout << boolalpha << vector->Search(24) << endl;
+	cout << boolalpha << vector->Search(123) << endl;
+	cout << vector->GetCount();
+	vector->Sort();
+	cout << endl;
+	vector->Print();
+	cout << endl << endl;
+
+
+	Container* sll = new SLL;
+	for (int i = 5; i < 15; i++)
+	sll->Add(i);
+	sll->Print();
+	cout << endl;
+	cout << boolalpha << sll->Search(6) << endl;
+	cout << boolalpha << sll->Search(123) << endl;
+	sll->Remove(5);
+	sll->Replace(7, 123);
+	sll->Print();
+	cout << endl;
+	cout << sll->GetCount() << endl;
+	sll->Sort();
+	sll->Print();
+	cout << endl << endl;
+
+	Container* dll = new DLL;
+	for (int i = 0; i < 10; i++)
+	dll->Add(i);
+	cout << boolalpha << dll->Remove(123) << endl;
+	cout << boolalpha << dll->Remove(5) << endl;
+	//cout << dll->GetHead() << endl;
+	//cout << dll->GetCount() << endl;
+	cout << boolalpha << dll->Remove(123) << endl;
+	cout << boolalpha << dll->Replace(123, 5) << endl;
+	cout << boolalpha << dll->Replace(7, 111) << endl;
+	dll->Print();
+	dll->Sort();
+	cout << endl;
+	dll->Print();
+	cout << endl;
+	cout << endl;
+
+	Container* bt = new BinaryTree;
+	for (int i = 0; i < 10; i++)
+	bt->Add(i);
+	bt->Remove(8);
+	bt->Print();
+	cout << bt->GetCount() << endl;
+	cout << boolalpha << bt->Search(5) << endl;
+	cout << boolalpha << bt->Search(123) << endl;
+	bt->Replace(7, 123);
+	bt->Print();
+	bt->Replace(1, 2);
+	bt->Sort();
+	
+}
