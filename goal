@@ -40,3 +40,21 @@ public:
 		deadline.Show();
 	}
 };
+
+#include "Goal.h"
+
+class Strenght_Goal: public Goal
+{
+public:
+	Strenght_Goal(string name) :Goal(name){};
+};
+
+#include "Strenght_Goal.h"
+
+void main()
+{
+	setlocale(LC_ALL, "RUS");
+	Strenght_Goal my_goal("50 отжиманий");
+	my_goal.Show();
+	cout << endl;
+}
