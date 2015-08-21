@@ -1,0 +1,42 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class DATE
+{
+	unsigned day = 1;
+	unsigned month = 1;
+	unsigned year = 1990;
+	unsigned hour = 0;
+	unsigned min = 0;
+	unsigned sek = 0;
+public:
+	void Show()
+	{
+		cout << day << "." << month << "." << year;
+		cout << " " << hour << ":" << min << ":" << sek;
+	}
+};
+
+class Goal abstract
+{
+protected:
+	DATE date_create;
+	DATE deadline;
+	string name; //наименование цели
+	int priority = 0; //приоритет
+	string note = "Unknown"; //примечание
+	Goal* sub_goals = nullptr; //подчиненные цели
+	unsigned perform = 0; //процент выполнения
+
+public:
+	Goal(string name) : name(name){};
+
+	void Show(){ 
+		cout << name << endl;
+		cout << "Создана: ";
+		date_create.Show();
+		cout << endl << "Дедлайн: ";
+		deadline.Show();
+	}
+};
