@@ -1,3 +1,35 @@
+/*#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
+using namespace std;
+
+void main()
+{
+	unsigned p = 0; //счетчик строк
+	cout << "Enter:\n";
+	char* path = new char[100];
+	gets_s(path, 100);
+	cout << path << '\n';
+	FILE* f;
+	if ((f = fopen(path, "r")) == NULL) {
+		cout << "Error\n";
+		exit(1);
+	}
+	//bool key = true; //открывает либо закрывает счетчик
+	for (char ch = fgetc(f); ch != EOF;)
+	{
+		if (ch == '\n') 
+			p++;
+		ch = fgetc(f);
+	}
+	fclose(f);
+	cout << p << '\n';
+}*/
+
+#include <fstream>
 #include <iostream>
 #include <string>
 using namespace std;
@@ -7,8 +39,8 @@ protected:
 	unsigned count;
 	unsigned step;
 public:
-	Pointer() : count(0) {};
-	Pointer(unsigned count) : count(0) {};
+	Pointer() : count(0), step(1) {};
+	Pointer(unsigned count) : count(0), step(1) {};
 
 	virtual unsigned GetCount() const {
 		return count;
@@ -17,7 +49,7 @@ public:
 		return step;
 	}
 
-	virtual unsigned SetStep(unsigned step) {
+	virtual void SetStep(unsigned step) {
 		this->step = step;
 	}
 
@@ -33,11 +65,35 @@ public:
 };
 
 class Pointer_for_LLOC: public Pointer{
-	
+public:
+	Pointer_for_LLOC() {
+		count = 0;
+	};
 };
 
 class FileAnalyze {
-
+protected:
+	Pointer_for_LLOC p; //количество строк
+public:
+	FileAnalyze() {};
+	
+	void Start(string fp)
+	{
+		char ch;
+		ifstream in(fp);
+		if (!in.is_open()) // если открытие файла завершилось неудачей - выходим
+		{
+			cout << "Error!\n";
+			return;
+		}
+		for (; !in.eof(); in >> ch)
+		{
+				p++;
+		}
+	}
+	unsigned GetP() {
+		return p.GetCount();
+	}
 };
 
 class ReadFile {
@@ -45,8 +101,17 @@ protected:
 	string fp; //путь к файлу
 	FileAnalyze analyze;
 public:
-	ReadFile(string fp) : fp(fp) {};
+	ReadFile(string fp) : fp(fp) {
+		analyze.Start(fp);
+	};
+	unsigned GetP() {
+		return analyze.GetP();
+	}
 };
 
 int main(void)
 {
+	string fp = "file.txt";
+	ReadFile r(fp);
+	cout << r.GetP() << endl;
+}
