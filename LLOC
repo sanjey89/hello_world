@@ -1,0 +1,30 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
+using namespace std;
+
+void main()
+{
+	unsigned p = 0; //счетчик строк
+	cout << "Enter:\n";
+	char* path = new char[100];
+	gets_s(path, 100);
+	cout << path << '\n';
+	FILE* f;
+	if ((f = fopen(path, "r")) == NULL) {
+		cout << "Error\n";
+		exit(1);
+	}
+	//bool key = true; //открывает либо закрывает счетчик
+	for (char ch = fgetc(f); ch != EOF;)
+	{
+		if (ch == '\n') 
+			p++;
+		ch = fgetc(f);
+	}
+	fclose(f);
+	cout << p << '\n';
+}
