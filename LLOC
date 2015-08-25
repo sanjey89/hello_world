@@ -34,6 +34,89 @@ void main()
 #include <string>
 using namespace std;
 
+class Stack
+{
+	int* ptr_stack;
+	int top; // индекс вершины стека
+	int size;
+
+public:
+	Stack() : top(0), size(10)
+	{
+		ptr_stack = new int[10];
+	}
+
+	void Clear()
+	{
+		top = 0;
+		delete[]ptr_stack;
+		size = 10;
+		ptr_stack = new int[size];
+	}
+
+	bool IsEmpty()
+	{
+		return top == 0;
+	}
+
+	bool IsFull()
+	{
+		return top == size;
+	}
+
+	int GetCount()
+	{
+		return top;
+	}
+
+	void Push(int digit)
+	{
+		if (!IsFull())
+			ptr_stack[top++] = digit;
+		else
+		{
+			//size *= 2;
+			int* temp_stack = new int[size * 2];
+			for (int i = 0; i < size; i++)
+				temp_stack[i] = ptr_stack[i];
+			delete[] ptr_stack;
+			ptr_stack = temp_stack;
+			ptr_stack[top++] = digit;
+			size *= 2;
+		}
+	}
+	void PushIf(int digit)
+	{
+		if (Contains(digit)) return;
+		Push(digit);
+	}
+
+	int Pop()
+	{
+		if (!IsEmpty())
+			return ptr_stack[--top];
+		else throw "Stack is empty!";
+	}
+	int Peek()
+	{
+		if (!IsEmpty())
+			return ptr_stack[top - 1];
+		else throw "Stack is empty!";
+	}
+	bool Contains(int value) const
+	{
+		for (int i = 0; i < size; i++)
+			if (ptr_stack[i] == value)
+				return true;
+		return false;
+	}
+	~Stack()
+	{
+		delete[]ptr_stack;
+		ptr_stack = nullptr;
+	}
+};
+
 class Pointer abstract {
 protected:
 	unsigned count;
@@ -79,15 +162,41 @@ public:
 	
 	void Start(string fp)
 	{
-		char ch;
+		char ch = '\0';
 		ifstream in(fp);
 		if (!in.is_open()) // если открытие файла завершилось неудачей - выходим
 		{
 			cout << "Error!\n";
 			return;
 		}
-		for (; !in.eof(); in >> ch)
+		//ch = in.get();
+		for (;!in.eof();)
 		{
+			ch = in.get();
+			if (ch == '/')
+			{
+				ch = in.get();
+				if (ch == '*')
+				{
+					for (; !in.eof();)
+					{
+						ch = in.get();
+						if (ch == '*')
+						{
+							ch = in.peek();
+							if (ch == '/')
+							{
+								ch = in.get();
+								if (ch == '\n')
+									ch = in.get();
+								break;
+							}
+						}
+					}
+				}
+			}
+			//cout << ch;
+			if (ch == '\n')
 				p++;
 		}
 	}
