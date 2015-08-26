@@ -157,6 +157,27 @@ public:
 class FileAnalyze {
 protected:
 	Pointer_for_LLOC p; //количество строк
+
+	char CommentAnalyze(ifstream& in)
+	{
+		char ch = '\0';
+		for (; !in.eof();)
+		{
+			ch = in.get();
+			cout << char(ch);
+			if (ch == '*' && in.peek() == '/')
+			{
+				ch = in.get();
+				if (in.peek() == ' ' || in.peek() == '\n')
+					for (; !in.eof();)
+					{
+						ch = in.get();
+						if (ch != ' ' && ch != '\n')
+							return ch;
+					}
+			}
+		}
+	}
 public:
 	FileAnalyze() {};
 	
@@ -164,40 +185,21 @@ public:
 	{
 		char ch = '\0';
 		ifstream in(fp);
+		ifstream* in_ptr = &in;
 		if (!in.is_open()) // если открытие файла завершилось неудачей - выходим
 		{
 			cout << "Error!\n";
 			return;
 		}
-		//ch = in.get();
-		for (;!in.eof();)
+		for (; !in.eof();)
 		{
 			ch = in.get();
-			if (ch == '/')
+			if (ch == '/' && in.peek() == '*')
 			{
-				ch = in.get();
-				if (ch == '*')
-				{
-					for (; !in.eof();)
-					{
-						ch = in.get();
-						if (ch == '*')
-						{
-							ch = in.peek();
-							if (ch == '/')
-							{
-								ch = in.get();
-								if (ch == '\n')
-									ch = in.get();
-								break;
-							}
-						}
-					}
-				}
+				in.get();
+				ch = CommentAnalyze(in);
 			}
-			//cout << ch;
-			if (ch == '\n')
-				p++;
+			if (ch == '\n') p++;
 		}
 	}
 	unsigned GetP() {
