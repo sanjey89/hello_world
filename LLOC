@@ -164,7 +164,6 @@ protected:
 		for (; !in.eof();)
 		{
 			ch = in.get();
-			cout << char(ch);
 			if (ch == '*' && in.peek() == '/')
 			{
 				ch = in.get();
@@ -177,6 +176,23 @@ protected:
 					}
 			}
 		}
+		return ch;
+	}
+	void EmptyStringAnalyze(ifstream& in)
+	{
+		char ch = '\0';
+		for (; !in.eof();)
+		{
+			ch = in.peek();
+			//cout << ch;
+			if (ch == ' ' || ch == '\n')
+				in.get();
+			else
+			{
+				(char)in.get();
+				break;
+			}
+		}
 	}
 public:
 	FileAnalyze() {};
@@ -185,7 +201,6 @@ public:
 	{
 		char ch = '\0';
 		ifstream in(fp);
-		ifstream* in_ptr = &in;
 		if (!in.is_open()) // если открытие файла завершилось неудачей - выходим
 		{
 			cout << "Error!\n";
@@ -199,7 +214,12 @@ public:
 				in.get();
 				ch = CommentAnalyze(in);
 			}
-			if (ch == '\n') p++;
+			if (ch == '\n')
+			{
+				p++;
+				if (in.peek() == ' ' || in.peek() == '\n')
+				EmptyStringAnalyze(in);
+			}
 		}
 	}
 	unsigned GetP() {
