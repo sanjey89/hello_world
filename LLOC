@@ -185,7 +185,8 @@ protected:
 		{
 			ch = in.peek();
 			//cout << ch;
-			if (ch == ' ' || ch == '\n')
+			if (ch == ' ' || ch == '\n' || ch == '{' || ch == '}'
+				|| ch == ')' || ch == ')' || ch == ';' || ch == '\r')
 				in.get();
 			else
 			{
