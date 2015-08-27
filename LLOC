@@ -151,13 +151,41 @@ class Pointer_for_LLOC: public Pointer{
 public:
 	Pointer_for_LLOC() {
 		count = 0;
+		step = 1;
 	};
 };
 
 class FileAnalyze {
 protected:
-	Pointer_for_LLOC p; //количество строк
-
+	Pointer_for_LLOC p; //количество полезных строк
+	Pointer_for_LLOC p_empty; //количество пустых или заком.строк
+	char EmptyStringAnalyze(ifstream& in)
+	{
+		char ch = '\0';
+		for (; !in.eof();)
+		{
+			ch = in.peek();
+			//cout << ch;
+			if (ch == ' ' || ch == '\n' || ch == '{' || ch == '}'
+				|| ch == ')' || ch == ')' || ch == ';' || ch == '\r'
+				|| ch == '/')
+			{
+				ch = in.get();
+				if (ch == '\n') p_empty++;
+				if (in.peek() == '*' && ch == '/')
+				{
+					in.seekg(-1, ios::cur);
+					return ch;
+				}
+			}
+				
+			else
+			{
+				//(char)in.get();
+				return ch;
+			}
+		}
+	}
 	char CommentAnalyze(ifstream& in)
 	{
 		char ch = '\0';
@@ -166,35 +194,21 @@ protected:
 			ch = in.get();
 			if (ch == '*' && in.peek() == '/')
 			{
-				ch = in.get();
-				if (in.peek() == ' ' || in.peek() == '\n')
+				in.get();
+				ch = EmptyStringAnalyze(in);
+				return ch;
+				/*if (in.peek() == ' ' || in.peek() == '\n')
 					for (; !in.eof();)
 					{
 						ch = in.get();
 						if (ch != ' ' && ch != '\n')
 							return ch;
-					}
+					}*/
 			}
 		}
 		return ch;
 	}
-	void EmptyStringAnalyze(ifstream& in)
-	{
-		char ch = '\0';
-		for (; !in.eof();)
-		{
-			ch = in.peek();
-			//cout << ch;
-			if (ch == ' ' || ch == '\n' || ch == '{' || ch == '}'
-				|| ch == ')' || ch == ')' || ch == ';' || ch == '\r')
-				in.get();
-			else
-			{
-				(char)in.get();
-				break;
-			}
-		}
-	}
+	
 public:
 	FileAnalyze() {};
 	
@@ -210,21 +224,28 @@ public:
 		for (; !in.eof();)
 		{
 			ch = in.get();
+			//проверяем не многострочный комментарий ли это
 			if (ch == '/' && in.peek() == '*')
 			{
 				in.get();
-				ch = CommentAnalyze(in);
+				CommentAnalyze(in);
+				//ch = in.peek();
 			}
+			//проверям не новая ли это строка
 			if (ch == '\n')
 			{
 				p++;
-				if (in.peek() == ' ' || in.peek() == '\n')
-				EmptyStringAnalyze(in);
+				//if (in.peek() == ' ' || in.peek() == '\n')
+					EmptyStringAnalyze(in);
 			}
 		}
 	}
 	unsigned GetP() {
 		return p.GetCount();
+	}
+	unsigned GetP_empty()
+	{
+		return p_empty.GetCount();
 	}
 };
 
@@ -239,11 +260,17 @@ public:
 	unsigned GetP() {
 		return analyze.GetP();
 	}
+	unsigned GetP_empty()
+	{
+		return analyze.GetP_empty();
+	}
 };
 
 int main(void)
 {
 	string fp = "file.txt";
 	ReadFile r(fp);
-	cout << r.GetP() << endl;
+	cout << "Total: " << r.GetP() + r.GetP_empty() << endl;
+	cout << "LLOC: " << r.GetP() << endl;
+	cout << "Not used: " << r.GetP_empty() << endl;
 }
