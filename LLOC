@@ -165,20 +165,30 @@ protected:
 		for (; !in.eof();)
 		{
 			ch = in.peek();
-			//cout << ch;
+			cout << ch;
 			if (ch == ' ' || ch == '\n' || ch == '{' || ch == '}'
 				|| ch == ')' || ch == ')' || ch == ';' || ch == '\r'
-				|| ch == '/')
+				|| ch == '/' || ch == '\t')
 			{
 				ch = in.get();
 				if (ch == '\n') p_empty++;
+				int ch1 = in.peek();
+				if (ch1 == '/' && ch == '/')
+					for (; !in.eof();)
+					{
+						ch = in.get();
+						if (ch == '\n')
+						{
+							p_empty++;
+							return ch;
+						}
+					}
 				if (in.peek() == '*' && ch == '/')
 				{
 					in.seekg(-1, ios::cur);
 					return ch;
 				}
-			}
-				
+			}	
 			else
 			{
 				//(char)in.get();
@@ -192,6 +202,7 @@ protected:
 		for (; !in.eof();)
 		{
 			ch = in.get();
+			if (ch == '\n') p_empty++;
 			if (ch == '*' && in.peek() == '/')
 			{
 				in.get();
