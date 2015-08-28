@@ -1,121 +1,7 @@
-/*#define _CRT_SECURE_NO_WARNINGS
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-using namespace std;
-
-void main()
-{
-	unsigned p = 0; //счетчик строк
-	cout << "Enter:\n";
-	char* path = new char[100];
-	gets_s(path, 100);
-	cout << path << '\n';
-	FILE* f;
-	if ((f = fopen(path, "r")) == NULL) {
-		cout << "Error\n";
-		exit(1);
-	}
-	//bool key = true; //открывает либо закрывает счетчик
-	for (char ch = fgetc(f); ch != EOF;)
-	{
-		if (ch == '\n') 
-			p++;
-		ch = fgetc(f);
-	}
-	fclose(f);
-	cout << p << '\n';
-}*/
-
 #include <fstream>
 #include <iostream>
 #include <string>
 using namespace std;
-
-class Stack
-{
-	int* ptr_stack;
-	int top; // индекс вершины стека
-	int size;
-
-public:
-	Stack() : top(0), size(10)
-	{
-		ptr_stack = new int[10];
-	}
-
-	void Clear()
-	{
-		top = 0;
-		delete[]ptr_stack;
-		size = 10;
-		ptr_stack = new int[size];
-	}
-
-	bool IsEmpty()
-	{
-		return top == 0;
-	}
-
-	bool IsFull()
-	{
-		return top == size;
-	}
-
-	int GetCount()
-	{
-		return top;
-	}
-
-	void Push(int digit)
-	{
-		if (!IsFull())
-			ptr_stack[top++] = digit;
-		else
-		{
-			//size *= 2;
-			int* temp_stack = new int[size * 2];
-			for (int i = 0; i < size; i++)
-				temp_stack[i] = ptr_stack[i];
-			delete[] ptr_stack;
-			ptr_stack = temp_stack;
-			ptr_stack[top++] = digit;
-			size *= 2;
-		}
-	}
-	void PushIf(int digit)
-	{
-		if (Contains(digit)) return;
-		Push(digit);
-	}
-
-	int Pop()
-	{
-		if (!IsEmpty())
-			return ptr_stack[--top];
-		else throw "Stack is empty!";
-	}
-	int Peek()
-	{
-		if (!IsEmpty())
-			return ptr_stack[top - 1];
-		else throw "Stack is empty!";
-	}
-	bool Contains(int value) const
-	{
-		for (int i = 0; i < size; i++)
-			if (ptr_stack[i] == value)
-				return true;
-		return false;
-	}
-	~Stack()
-	{
-		delete[]ptr_stack;
-		ptr_stack = nullptr;
-	}
-};
 
 class Pointer abstract {
 protected:
@@ -165,7 +51,6 @@ protected:
 		for (; !in.eof();)
 		{
 			ch = in.peek();
-			cout << ch;
 			if (ch == ' ' || ch == '\n' || ch == '{' || ch == '}'
 				|| ch == ')' || ch == ')' || ch == ';' || ch == '\r'
 				|| ch == '/' || ch == '\t')
@@ -191,7 +76,6 @@ protected:
 			}	
 			else
 			{
-				//(char)in.get();
 				return ch;
 			}
 		}
@@ -208,13 +92,6 @@ protected:
 				in.get();
 				ch = EmptyStringAnalyze(in);
 				return ch;
-				/*if (in.peek() == ' ' || in.peek() == '\n')
-					for (; !in.eof();)
-					{
-						ch = in.get();
-						if (ch != ' ' && ch != '\n')
-							return ch;
-					}*/
 			}
 		}
 		return ch;
@@ -223,14 +100,14 @@ protected:
 public:
 	FileAnalyze() {};
 	
-	void Start(string fp)
+	bool Start(string fp)
 	{
 		char ch = '\0';
 		ifstream in(fp);
 		if (!in.is_open()) // если открытие файла завершилось неудачей - выходим
 		{
 			cout << "Error!\n";
-			return;
+			return false;
 		}
 		for (; !in.eof();)
 		{
@@ -246,8 +123,7 @@ public:
 			if (ch == '\n')
 			{
 				p++;
-				//if (in.peek() == ' ' || in.peek() == '\n')
-					EmptyStringAnalyze(in);
+				EmptyStringAnalyze(in);
 			}
 		}
 	}
@@ -263,10 +139,12 @@ public:
 class ReadFile {
 protected:
 	string fp; //путь к файлу
+	string fr; //путь к рапорту
+	bool file_open;
 	FileAnalyze analyze;
 public:
-	ReadFile(string fp) : fp(fp) {
-		analyze.Start(fp);
+	ReadFile(string fp, string fr) : fp(fp), fr(fr) {
+		file_open = analyze.Start(fp);
 	};
 	unsigned GetP() {
 		return analyze.GetP();
@@ -275,13 +153,53 @@ public:
 	{
 		return analyze.GetP_empty();
 	}
+	void Report()
+	{
+		if (file_open == false)
+		{
+			cout << "Error!\n";
+		}
+		int LLOC = GetP();
+		int not_used = GetP_empty();
+		int total = LLOC + not_used;
+		ofstream out(fr, ios::out);
+		if (!out.is_open()) // если открытие файла завершилось неудачей - выходим
+		{
+			cout << "Error!\n";
+			return;
+		}
+		out << "<!DOCTYPE html>" << '\n';
+		out << "<html>" << '\n';
+		out << '\t' << "<head>" << '\n';
+		out << '\t' << '\t' << "<meta charset=\"utf - 8\">" << '\n';
+		out << '\t' << '\t' << "<title>" << '\n';
+		out << '\t' << '\t' << " Report:" << '\n';
+		out << '\t' << '\t' << "</title>" << '\n';
+		out << '\t' << "</head>" << '\n';
+		out << '\t' << "<body>" << '\n';
+		out << '\t' << '\t' << "<p>" << '\n';
+		out << '\t' << '\t' << " Total: " << total << "<br>" << '\n';
+		out << '\t' << '\t' << " LLOC: " << LLOC << "<br>" << '\n';
+		out << '\t' << '\t' << " Not used: " << not_used << "<br>" << '\n';
+		out << '\t' << '\t' << "</p>" << '\n';
+		out << '\t' << "</body>" << '\n';
+		out << "</html>" << '\n';
+		out.close();
+	}
 };
 
 int main(void)
 {
-	string fp = "file.txt";
-	ReadFile r(fp);
-	cout << "Total: " << r.GetP() + r.GetP_empty() << endl;
-	cout << "LLOC: " << r.GetP() << endl;
-	cout << "Not used: " << r.GetP_empty() << endl;
+	char fp[300]; //путь к считываемому файлу
+	char fr[300]; //путь к отчету
+	cout << "Enter file path:  (e.g. C:\\path\\file_name.txt) ";
+	cout << endl;
+	gets_s(fp);
+	cout << endl;
+	cout << "Enter report path: (e.g. C:\\path\\report_name.html) ";
+	cout << endl;
+	gets_s(fr);
+	cout << endl;
+	ReadFile r(fp, fr);
+	r.Report();
 }
